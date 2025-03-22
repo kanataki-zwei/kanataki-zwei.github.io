@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Patrick Waruingi | Data Engineer Portfolio</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Tailwind config for dark mode
-    tailwind.config = {
-      darkMode: 'class'
-    }
-  </script>
+  <link href="css/style.css" rel="stylesheet" />
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans leading-relaxed">
 
   <!-- Dark Mode Toggle -->
-  <div class="fixed top-4 right-4 z-50">
+  <div class="fixed bottom-20 right-6 z-50">
     <button id="toggleDark" class="bg-gray-200 dark:bg-gray-700 text-sm px-3 py-2 rounded shadow hover:bg-gray-300 dark:hover:bg-gray-600">
       🌙 Toggle Dark Mode
     </button>
   </div>
+  
 
   <!-- Scroll to Top Button -->
   <button id="scrollTopBtn" class="fixed bottom-6 right-6 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hidden z-50">
@@ -31,10 +27,10 @@
     <div class="max-w-6xl mx-auto flex justify-between items-center">
       <h1 class="text-xl font-bold">Patrick G Waruingi</h1>
       <nav class="space-x-4">
-        <a href="#about" class="text-blue-600 dark:text-blue-400 hover:underline">About</a>
-        <a href="#skills" class="text-blue-600 dark:text-blue-400 hover:underline">Skills</a>
-        <a href="#projects" class="text-blue-600 dark:text-blue-400 hover:underline">Projects</a>
-        <a href="#contact" class="text-blue-600 dark:text-blue-400 hover:underline">Contact</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#contact" class="nav-link">Contact</a>
       </nav>
     </div>
   </header>
@@ -60,6 +56,7 @@
     <div class="max-w-6xl mx-auto">
       <h3 class="text-2xl font-semibold mb-8 text-center">Skills</h3>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Skill blocks -->
         <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded shadow-sm">
           <h4 class="text-lg font-bold mb-2">Programming Languages</h4>
           <ul class="list-disc list-inside text-sm space-y-1">
@@ -110,39 +107,46 @@
   <section id="projects" class="max-w-6xl mx-auto py-12 px-4">
     <h3 class="text-2xl font-semibold mb-8 text-center">Projects</h3>
     <div class="flex flex-wrap justify-center gap-4 mb-8">
-      <button class="filter-btn bg-blue-100 text-blue-800 text-sm px-4 py-2 rounded hover:bg-blue-200" data-filter="all">All</button>
-      <button class="filter-btn bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300" data-filter="data-eng">Data Eng</button>
-      <button class="filter-btn bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300" data-filter="bi">BI</button>
-      <button class="filter-btn bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300" data-filter="ml">ML</button>
+      <button class="filter-btn active-filter" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="data-eng">Data Eng</button>
+      <button class="filter-btn" data-filter="bi">BI</button>
+      <button class="filter-btn" data-filter="ml">ML</button>
     </div>
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Project 1 -->
       <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition duration-300" data-category="data-eng">
         <img src="https://via.placeholder.com/400x200?text=Airflow+ETL+Star+Schema" class="rounded mb-4" alt="Airflow ETL Star Schema">
         <h4 class="text-lg font-bold mb-2">Airflow ETL Star Schema</h4>
-        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Dockerized ETL pipeline that loads data into a warehouse using Airflow and PostgreSQL.</p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Dockerized ETL pipeline using Airflow and PostgreSQL.</p>
         <div class="flex flex-wrap gap-2 mb-4">
           <span class="badge">Airflow</span><span class="badge">PostgreSQL</span><span class="badge">Docker</span><span class="badge">Python</span>
         </div>
         <a href="#" class="text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline">View on GitHub</a>
       </div>
+
+      <!-- Project 2 -->
       <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition duration-300" data-category="bi">
         <img src="https://via.placeholder.com/400x200?text=Lender+BI+Case+Study" class="rounded mb-4" alt="Lender BI Case Study">
         <h4 class="text-lg font-bold mb-2">Lender BI Case Study</h4>
-        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Case study using SQL, Python forecasting, and dashboards in Looker Studio.</p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">BI dashboarding & forecasting with Looker Studio and Python.</p>
         <div class="flex flex-wrap gap-2 mb-4">
           <span class="badge">SQL</span><span class="badge">Python</span><span class="badge">Looker Studio</span><span class="badge">Docker</span>
         </div>
         <a href="#" class="text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline">View on GitHub</a>
       </div>
+
+      <!-- Project 3 -->
       <div class="project-card bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-xl transition duration-300" data-category="ml">
         <img src="https://via.placeholder.com/400x200?text=Monthly+Cohort+Retention" class="rounded mb-4" alt="Monthly Cohort Retention">
         <h4 class="text-lg font-bold mb-2">Monthly Cohort Retention</h4>
-        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">SQL analysis of user retention on PostgreSQL database using cohort methods.</p>
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">SQL-based cohort analysis on a PostgreSQL database.</p>
         <div class="flex flex-wrap gap-2 mb-4">
           <span class="badge">SQL</span><span class="badge">PostgreSQL</span><span class="badge">Docker</span>
         </div>
         <a href="#" class="text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline">View on GitHub</a>
       </div>
+
     </div>
   </section>
 
@@ -159,41 +163,6 @@
     &copy; 2025 Patrick G. W | Built with 💙 and Tailwind CSS
   </footer>
 
-  <!-- Scripts -->
-  <script>
-    // Dark Mode Toggle
-    const toggleBtn = document.getElementById('toggleDark');
-    toggleBtn.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-    });
-
-    // Scroll to Top Button
-    const scrollTopBtn = document.getElementById('scrollTopBtn');
-    window.onscroll = () => {
-      scrollTopBtn.classList.toggle("hidden", window.scrollY < 200);
-    };
-    scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Filter Logic
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const projectCards = document.querySelectorAll('.project-card');
-    filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const filter = button.getAttribute('data-filter');
-        filterButtons.forEach(btn => btn.classList.remove('bg-blue-100', 'text-blue-800'));
-        button.classList.add('bg-blue-100', 'text-blue-800');
-        projectCards.forEach(card => {
-          const category = card.getAttribute('data-category');
-          card.classList.toggle('hidden', filter !== 'all' && category !== filter);
-        });
-      });
-    });
-  </script>
-
-  <style>
-    .badge {
-      @apply bg-gray-200 dark:bg-gray-600 text-xs font-semibold px-2 py-1 rounded;
-    }
-  </style>
+  <script src="js/script.js"></script>
 </body>
 </html>
