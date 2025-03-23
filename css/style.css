@@ -1,13 +1,59 @@
-.badge {
-    @apply bg-gray-200 dark:bg-gray-600 text-xs font-semibold px-2 py-1 rounded;
-  }
-  .nav-link {
+/* Navigation link styles */
+.nav-link {
     @apply text-blue-600 dark:text-blue-400 hover:underline;
   }
+  
+  /* Project category filter buttons */
   .filter-btn {
-    @apply bg-gray-200 text-sm px-4 py-2 rounded hover:bg-gray-300;
+    @apply bg-gray-200 dark:bg-gray-700 text-sm px-4 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors;
   }
+  
+  /* Active filter styling */
   .active-filter {
-    @apply bg-blue-100 text-blue-800;
+    @apply bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-white;
+  }
+  
+  /* Skill section containers */
+  .skill-box {
+    @apply bg-gray-50 dark:bg-gray-700 p-4 rounded shadow-sm transition-colors;
+  }
+  
+  .skill-heading {
+    @apply text-lg font-bold mb-2;
+  }
+  
+  .skill-list {
+    @apply text-sm space-y-2;
+  }
+  
+  /* Each skill item (with icons) */
+  .skill-list li {
+    @apply flex items-center;
+  }
+  
+  /* Skill icons (hard enforce width + max size) */
+  .icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+    object-fit: contain;
+  }
+  
+  /* Tech stack tags in project cards */
+  .badge {
+    @apply bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white text-xs font-semibold px-2 py-1 rounded;
+  }
+  
+  /* Project card layout */
+  .project-card {
+    @apply bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-lg shadow-md p-6 hover:shadow-xl transition duration-300;
+  }
+  
+  .project-link {
+    @apply text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline;
   }
   
