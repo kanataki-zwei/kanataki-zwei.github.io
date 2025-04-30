@@ -4,11 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gichini Waruingi | Portfolio</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>  
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans leading-relaxed">
+<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 font-sans leading-relaxed">
   <!-- Navbar -->
-  <header class="bg-white shadow sticky top-0 z-50">
+  <header class="bg-white shadow sticky top-0 z-50 dark:bg-gray-800 dark:text-white">
     <nav class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold">Patrick Gichini Waruingi</h1>
       <ul class="space-x-6 hidden md:flex">
@@ -17,6 +22,9 @@
         <li><a href="#projects" class="hover:text-blue-600">Projects</a></li>
         <li><a href="#contact" class="hover:text-blue-600">Contact</a></li>
       </ul>
+      <button id="toggle-theme" class="ml-4 px-3 py-1 border rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-700 dark:border-gray-600">
+        Toggle Dark Mode
+      </button>      
     </nav>
   </header>
 
@@ -41,9 +49,9 @@
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">Programming Languages</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">Python</div>
-            <div class="p-3 border rounded shadow text-center">SQL</div>
-            <div class="p-3 border rounded shadow text-center">JavaScript</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Python</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">SQL</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">JavaScript</div>
           </div>
         </div>
       
@@ -51,14 +59,14 @@
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">Data Engineering</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">Airflow</div>
-            <div class="p-3 border rounded shadow text-center">Prefect</div>
-            <div class="p-3 border rounded shadow text-center">Airbyte</div>
-            <div class="p-3 border rounded shadow text-center">dbt</div>
-            <div class="p-3 border rounded shadow text-center">Spark</div>
-            <div class="p-3 border rounded shadow text-center">PostgreSQL</div>
-            <div class="p-3 border rounded shadow text-center">BigQuery</div>
-            <div class="p-3 border rounded shadow text-center">Snowflake</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Airflow</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Prefect</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Airbyte</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">dbt</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Spark</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">PostgreSQL</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">BigQuery</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Snowflake</div>
           </div>
         </div>
       
@@ -66,10 +74,10 @@
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">DevOps</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">Docker</div>
-            <div class="p-3 border rounded shadow text-center">Terraform</div>
-            <div class="p-3 border rounded shadow text-center">CI/CD</div>
-            <div class="p-3 border rounded shadow text-center">Enterprise Linux</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Docker</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Terraform</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">CI/CD</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Enterprise Linux</div>
           </div>
         </div>
       
@@ -77,10 +85,10 @@
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">Business Intelligence</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">Looker Studio</div>
-            <div class="p-3 border rounded shadow text-center">Power BI</div>
-            <div class="p-3 border rounded shadow text-center">Metabase</div>
-            <div class="p-3 border rounded shadow text-center">Apache Superset</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Looker Studio</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Power BI</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Metabase</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Apache Superset</div>
           </div>
         </div>
       
@@ -88,20 +96,20 @@
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">Data Science & Machine Learning</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">ML Flow</div>
-            <div class="p-3 border rounded shadow text-center">BigQuery ML</div>
-            <div class="p-3 border rounded shadow text-center">TensorFlow</div>          </div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">ML Flow</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">BigQuery ML</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">TensorFlow</div>          </div>
         </div>
       
         <!-- Others -->
         <div class="mb-10">
           <h3 class="text-xl font-semibold mb-2">Others</h3>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <div class="p-3 border rounded shadow text-center">Project & Product Management</div>
-            <div class="p-3 border rounded shadow text-center">Technical Documentation</div>
-            <div class="p-3 border rounded shadow text-center">Tech + Data Leadership</div>
-            <div class="p-3 border rounded shadow text-center">Data Compliance</div>
-            <div class="p-3 border rounded shadow text-center">Monitoring & Evaluation</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Project & Product Management</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Technical Documentation</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Tech + Data Leadership</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Data Compliance</div>
+            <div class="p-3 border rounded shadow text-center bg-white dark:bg-gray-800 dark:border-gray-700">Monitoring & Evaluation</div>
           </div>
         </div>
       </section>      
@@ -110,15 +118,15 @@
     <section id="projects">
       <h2 class="text-3xl font-bold mb-4">Projects</h2>
       <div class="space-y-8">
-        <div class="p-6 border rounded shadow">
+        <div class="p-6 border rounded shadow bg-white dark:bg-gray-800 dark:border-gray-700">
           <h3 class="text-2xl font-semibold">Cancer Support Ranking Model</h3>
           <p class="mb-2">Machine learning model to classify and rank cancer patient support applications.</p>
-          <a href="#" class="text-blue-600 hover:underline">View on GitHub</a>
+          <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">View on GitHub</a>
         </div>
-        <div class="p-6 border rounded shadow">
+        <div class="p-6 border rounded shadow bg-white dark:bg-gray-800 dark:border-gray-700">
           <h3 class="text-2xl font-semibold">Airflow ETL with Star Schema</h3>
           <p class="mb-2">An end-to-end ETL pipeline using PostgreSQL, Docker, and Airflow to build a data warehouse.</p>
-          <a href="#" class="text-blue-600 hover:underline">View on GitHub</a>
+          <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">View on GitHub</a>
         </div>
       </div>
     </section>
@@ -130,10 +138,16 @@
       <ul class="space-y-2 text-lg">
         <li>Email: <a href="mailto:gichiniwaruingi@gmail.com" class="text-blue-600 hover:underline">gichiniwaruingi@gmail.com</a></li>
         <li>GitHub: <a href="https://github.com/kanataki-zwei" class="text-blue-600 hover:underline">kanataki-zwei</a></li>
-        <li>LinkedIn: <a href="#" class="text-blue-600 hover:underline">Your LinkedIn URL</a></li>
+        <li>LinkedIn: <a href="https://www.linkedin.com/in/patrick-gichini-waruingi-a15692100/" class="text-blue-600 hover:underline">Patrick Gichini Waruingi</a></li>
       </ul>
     </section>
 
   </main>
+  <script>
+    const toggleBtn = document.getElementById('toggle-theme');
+    toggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+  </script>  
 </body>
 </html>
