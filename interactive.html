@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrick Gichini — Data Control Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #060d1a;
+      --surface: #0d1b2e;
+      --surface-2: #112240;
+      --border: #1e3a5f;
+      --cyan: #00d4ff;
+      --green: #00ff88;
+      --amber: #ffb300;
+      --red: #ff4466;
+      --text: #ccd6f6;
+      --muted: #8892b0;
+      --font: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ── Back link ── */
+    #back-link {
+      position: fixed;
+      top: 18px;
+      left: 20px;
+      z-index: 400;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    #back-link:hover { color: var(--cyan); }
+
+    /* ── Hint ── */
+    #hint {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      animation: pulse-hint 3s ease-in-out infinite;
+      z-index: 400;
+      pointer-events: none;
+    }
+    @keyframes pulse-hint {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ── Scene SVG ── */
+    #scene {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    /* ── Interactive SVG elements ── */
+    .interactive { cursor: pointer; }
+    .glow-target { transition: filter 0.35s ease; }
+    .interactive:hover .glow-target {
+      filter: drop-shadow(0 0 14px rgba(0, 212, 255, 0.75));
+    }
+    .label-text {
+      fill: #2a4a7f;
+      transition: fill 0.2s;
+    }
+    .interactive:hover .label-text { fill: var(--cyan) !important; }
+    .label-sub {
+      fill: #1e3a5f;
+      transition: fill 0.2s;
+    }
+    .interactive:hover .label-sub { fill: #4a7ba7 !important; }
+
+    /* ── LED animations ── */
+    @keyframes b1 { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    @keyframes b2 { 0%,40%{opacity:0.2} 70%,100%{opacity:1} }
+    @keyframes b3 { 0%,65%{opacity:1} 80%{opacity:0.1} 100%{opacity:1} }
+    .led-g { fill: var(--green); animation: b1 1.4s ease-in-out infinite; }
+    .led-a { fill: var(--amber); animation: b2 2.1s ease-in-out infinite; }
+    .led-r { fill: var(--red);   animation: b3 3.2s ease-in-out infinite; }
+    .led-c { fill: var(--cyan);  animation: b1 1.9s ease-in-out infinite; }
+
+    /* ── Idle pulse on interactive zones ── */
+    @keyframes idle-pulse { 0%,100%{opacity:0.5} 50%{opacity:0.9} }
+    .idle-glow { animation: idle-pulse 3.5s ease-in-out infinite; }
+
+    /* ── Blinking cursor ── */
+    @keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .cursor { animation: cursor-blink 1s step-end infinite; }
+
+    /* ── Panel ── */
+    #panel {
+      position: fixed;
+      top: 0;
+      right: -500px;
+      width: 460px;
+      height: 100vh;
+      background: rgba(6, 13, 26, 0.96);
+      backdrop-filter: blur(24px);
+      border-left: 1px solid var(--border);
+      z-index: 500;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+      padding: 52px 32px 48px;
+    }
+    #panel.open { right: 0; }
+
+    #panel-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #panel-close:hover { color: var(--cyan); border-color: var(--cyan); }
+
+    /* ── Panel content typography ── */
+    #panel-content { font-family: var(--font); font-size: 0.78rem; line-height: 1.75; }
+
+    #panel-content .ptag {
+      display: block;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      color: var(--cyan);
+      margin-bottom: 10px;
+    }
+    #panel-content h2 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 3px; line-height: 1.3; }
+    #panel-content h3 { font-size: 0.8rem; color: var(--cyan); font-weight: 500; margin-bottom: 18px; }
+    #panel-content hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    #panel-content p { color: var(--muted); margin-bottom: 14px; font-size: 0.75rem; line-height: 1.8; }
+
+    .stats-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 18px 0; }
+    .stat-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px 9px;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .role { margin-bottom: 22px; }
+    .role-title { color: #fff; font-size: 0.8rem; font-weight: 700; }
+    .role-company { color: var(--cyan); font-size: 0.74rem; }
+    .role-period { color: var(--muted); font-size: 0.68rem; margin-bottom: 7px; }
+    .role ul { padding-left: 14px; color: var(--muted); font-size: 0.72rem; }
+    .role li { margin-bottom: 5px; }
+
+    .skill-group { margin-bottom: 14px; }
+    .skill-group-title { color: var(--green); font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 7px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      color: var(--text);
+    }
+
+    .pcard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .pcard-title { color: #fff; font-size: 0.8rem; font-weight: 700; margin-bottom: 3px; }
+    .pcard-meta { color: var(--cyan); font-size: 0.65rem; margin-bottom: 8px; }
+    .pcard-desc { color: var(--muted); font-size: 0.72rem; line-height: 1.75; margin-bottom: 9px; }
+    .ptags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ptag-chip {
+      background: rgba(0,212,255,0.07);
+      border: 1px solid rgba(0,212,255,0.18);
+      border-radius: 3px;
+      padding: 2px 7px;
+      font-size: 0.62rem;
+      color: var(--cyan);
+    }
+
+    .clink {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.76rem;
+      margin-bottom: 9px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .clink:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── Overlay ── */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 490;
+      display: none;
+    }
+    #overlay.show { display: block; }
+
+    /* ── Mobile message ── */
+    #mobile-msg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+      gap: 20px;
+    }
+    #mobile-msg p { color: var(--muted); font-size: 0.85rem; line-height: 1.8; }
+    #mobile-msg a {
+      display: inline-block;
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    #mobile-msg a:hover { border-color: var(--cyan); }
+    @media (max-width: 860px) {
+      #mobile-msg { display: flex; }
+    }
+    @media (max-width: 860px) {
+      #panel { width: 100%; right: -100%; }
+    }
+
+    /* ═══════════════════════════════════════════
+       INTRO SEQUENCE
+    ═══════════════════════════════════════════ */
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      overflow: hidden;
+      transition: opacity 0.9s ease;
+    }
+    #intro.fade-out { opacity: 0; pointer-events: none; }
+
+    #ctrl-room {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+    #ctrl-room.reveal { opacity: 1; pointer-events: all; }
+
+    /* Savannah SVG */
+    #sv-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.9s ease;
+    }
+
+    /* Skip button */
+    #skip-btn {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      z-index: 2100;
+      background: rgba(13,27,46,0.85);
+      border: 1px solid #1e3a5f;
+      color: #8892b0;
+      font-family: var(--font);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    #skip-btn:hover { color: #00d4ff; border-color: #00d4ff; }
+
+    /* Running boy */
+    #boy-runner {
+      position: absolute;
+      bottom: 32%;
+      left: -5%;
+      pointer-events: none;
+      animation: boy-run 4s linear forwards;
+    }
+    #boy-runner svg { display: block; animation: boy-bob 0.26s ease-in-out infinite alternate; }
+    @keyframes boy-run { from { left: -5%; } to { left: 44%; } }
+    @keyframes boy-bob { from { transform: translateY(0); } to { transform: translateY(-9px); } }
+    #boy-runner.entering {
+      animation: boy-enter 0.9s linear forwards !important;
+    }
+    @keyframes boy-enter { from { left: 44%; opacity: 1; } to { left: 51%; opacity: 0; } }
+
+    /* Door */
+    #door-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: 32%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #door-wrap.show { opacity: 1; }
+
+    .door-frame {
+      width: 128px;
+      height: 210px;
+      background: #060d1a;
+      border: 5px solid #7a4820;
+      border-radius: 64px 64px 0 0;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0,212,255,0.14), 0 10px 50px rgba(0,0,0,0.7);
+    }
+    .door-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 65%, rgba(0,212,255,0.15), transparent 68%);
+      border-radius: inherit;
+    }
+    .door-panel {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #7a4520, #5c2e10);
+      border-radius: 59px 59px 0 0;
+      transform-origin: 0% 50%;
+      transition: transform 1.1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .door-panel::before {
+      content: '';
+      position: absolute;
+      inset: 14px 12px 14px 12px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 46px 46px 2px 2px;
+    }
+    .door-panel.open { transform: perspective(360px) rotateY(-84deg); }
+    .door-handle {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #c8901a;
+      box-shadow: 0 0 7px rgba(200,144,26,0.75);
+    }
+
+    /* Room scene */
+    #room-scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+    }
+    #room-scene.show { opacity: 1; }
+    #room-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* Cursor */
+    #room-cursor {
+      position: absolute;
+      left: 36%;
+      top: 44%;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+    #room-cursor.show { opacity: 1; }
+    #room-cursor.move { animation: cursor-move 1.3s cubic-bezier(0.4,0,0.2,1) forwards; }
+    @keyframes cursor-move { to { left: 49.5%; top: 36%; } }
+
+    /* Click ripple */
+    #click-ripple {
+      position: absolute;
+      left: 50%;
+      top: 36%;
+      transform: translate(-50%, -50%);
+      width: 0; height: 0;
+      border-radius: 50%;
+      background: rgba(0,212,255,0.5);
+      pointer-events: none;
+    }
+    #click-ripple.fire { animation: ripple 0.7s ease-out forwards; }
+    @keyframes ripple {
+      0%   { width: 0; height: 0; opacity: 0.9; }
+      100% { width: 320px; height: 320px; margin: -160px; opacity: 0; }
+    }
+
+    /* Flash */
+    #intro-flash {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,212,255,0.25);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #intro-flash.fire { animation: flash-out 0.55s ease-out forwards; }
+    @keyframes flash-out { 0% { opacity: 1; } 100% { opacity: 0; } }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     INTRO SEQUENCE
+════════════════════════════════════════════════════ -->
+<div id="intro">
+  <button id="skip-btn">SKIP →</button>
+
+  <!-- Savannah landscape SVG -->
+  <svg id="sv-svg" viewBox="0 0 1400 780" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="sv-sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#0d2244"/>
+        <stop offset="28%"  stop-color="#8b3015"/>
+        <stop offset="58%"  stop-color="#d96a14"/>
+        <stop offset="80%"  stop-color="#f0921a"/>
+        <stop offset="100%" stop-color="#f5b830"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Sky -->
+    <rect width="1400" height="780" fill="url(#sv-sky)"/>
+
+    <!-- Sun (at horizon, partially behind mountains) -->
+    <circle cx="700" cy="494" r="130" fill="#ff6b00" opacity="0.12"/>
+    <circle cx="700" cy="494" r="85"  fill="#ff8c00" opacity="0.22"/>
+    <circle cx="700" cy="494" r="52"  fill="#ffa800" opacity="0.5"/>
+    <circle cx="700" cy="494" r="36"  fill="#ffc800" opacity="0.88"/>
+
+    <!-- Distant mountains silhouette -->
+    <path d="M 0 455 C 80 415 160 438 240 398 C 310 364 390 388 465 355 C 538 325 622 348 700 338 C 780 328 862 352 940 342 C 1018 330 1102 358 1180 346 C 1258 332 1342 364 1400 350 L 1400 495 L 0 495 Z" fill="#20153a" opacity="0.95"/>
+
+    <!-- Far ground layer -->
+    <path d="M 0 780 L 0 475 Q 120 456 240 470 Q 380 450 520 464 Q 660 450 700 456 Q 820 448 980 462 Q 1120 450 1260 464 Q 1360 452 1400 460 L 1400 780 Z" fill="#7a4812"/>
+
+    <!-- Mid ground layer -->
+    <path d="M 0 780 L 0 500 Q 160 482 320 496 Q 480 480 640 494 Q 800 480 960 494 Q 1120 480 1280 496 Q 1360 486 1400 492 L 1400 780 Z" fill="#4a2c08"/>
+
+    <!-- Near ground -->
+    <path d="M 0 780 L 0 522 Q 180 505 360 518 Q 540 503 720 518 Q 900 503 1080 518 Q 1260 503 1400 516 L 1400 780 Z" fill="#2e1a06"/>
+
+    <!-- Foreground grass (jagged) -->
+    <path d="M 0 780 L 0 530 Q 25 512 50 530 Q 75 510 100 526 Q 125 506 150 522 Q 175 502 200 518 Q 225 498 250 514 Q 275 494 300 510 Q 325 490 350 506 Q 375 486 400 502 Q 425 482 450 498 Q 475 478 500 494 Q 525 474 550 490 Q 575 470 600 486 Q 625 466 650 482 Q 675 462 700 478 Q 725 458 750 474 Q 775 454 800 470 Q 825 450 850 466 Q 875 446 900 462 Q 925 442 950 458 Q 975 438 1000 454 Q 1025 434 1050 450 Q 1075 430 1100 446 Q 1125 426 1150 442 Q 1175 422 1200 438 Q 1225 418 1250 434 Q 1275 414 1300 430 Q 1325 410 1350 426 Q 1375 406 1400 422 L 1400 780 Z" fill="#1a2808"/>
+
+    <!-- Acacia tree (right side) -->
+    <g fill="#0a0603">
+      <!-- Trunk -->
+      <path d="M 1118 528 L 1113 462 L 1120 444 L 1127 462 L 1122 528 Z"/>
+      <!-- Left branch -->
+      <line x1="1115" y1="460" x2="1060" y2="444" stroke="#0a0603" stroke-width="6" stroke-linecap="round"/>
+      <line x1="1060" y1="444" x2="1038" y2="435" stroke="#0a0603" stroke-width="4" stroke-linecap="round"/>
+      <!-- Right branch -->
+      <line x1="1125" y1="457" x2="1174" y2="441" stroke="#0a0603" stroke-width="6" stroke-linecap="round"/>
+      <line x1="1174" y1="441" x2="1198" y2="433" stroke="#0a0603" stroke-width="4" stroke-linecap="round"/>
+      <!-- Centre branch up -->
+      <line x1="1120" y1="444" x2="1118" y2="414" stroke="#0a0603" stroke-width="5" stroke-linecap="round"/>
+      <!-- Canopy (flat-topped organic shape) -->
+      <path d="M 1030 440 C 1026 428 1038 416 1054 414 C 1058 406 1070 402 1082 406 C 1088 398 1100 396 1112 400 C 1116 392 1128 390 1136 396 C 1144 390 1158 394 1162 402 C 1174 402 1184 412 1180 422 C 1188 428 1184 440 1174 440 C 1170 448 1158 452 1148 448 C 1142 454 1128 454 1120 448 C 1112 454 1098 452 1092 446 C 1082 450 1068 448 1062 440 C 1052 440 1030 436 1030 440 Z"/>
+      <!-- Canopy extra depth bumps -->
+      <ellipse cx="1082" cy="426" rx="18" ry="10"/>
+      <ellipse cx="1120" cy="416" rx="20" ry="10"/>
+      <ellipse cx="1158" cy="423" rx="18" ry="10"/>
+    </g>
+
+    <!-- A second smaller acacia (far left for depth) -->
+    <g fill="#120804" opacity="0.6">
+      <path d="M 198 520 L 194 476 L 200 462 L 206 476 L 202 520 Z"/>
+      <line x1="196" y1="474" x2="168" y2="464" stroke="#120804" stroke-width="4" stroke-linecap="round"/>
+      <line x1="204" y1="472" x2="228" y2="463" stroke="#120804" stroke-width="4" stroke-linecap="round"/>
+      <path d="M 158 468 C 155 460 164 454 174 452 C 178 446 188 444 196 448 C 200 442 210 442 216 448 C 222 442 234 446 236 452 C 244 454 248 462 244 468 C 248 474 242 480 234 478 C 230 484 220 484 214 480 C 208 484 198 482 194 476 C 186 476 158 472 158 468 Z"/>
+    </g>
+
+    <!-- Birds -->
+    <g stroke="#0d1830" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M 280 132 C 285 128 290 132 295 128"/>
+      <path d="M 318 120 C 324 116 330 120 336 116"/>
+      <path d="M 302 150 C 307 146 312 150 317 146"/>
+      <path d="M 462 103 C 470 98 478 103 486 98"/>
+      <path d="M 500 120 C 507 116 514 120 521 116"/>
+      <path d="M 192 160 C 198 156 204 160 210 156"/>
+      <path d="M 165 144 C 170 140 175 144 180 140"/>
+      <path d="M 840 88 C 847 84 854 88 861 84"/>
+      <path d="M 870 105 C 876 101 882 105 888 101"/>
+    </g>
+
+    <!-- Warm haze at horizon -->
+    <rect x="0" y="460" width="1400" height="40" fill="url(#sv-sky)" opacity="0.18"/>
+  </svg>
+
+  <!-- Running boy -->
+  <div id="boy-runner">
+    <svg viewBox="-22 -60 44 70" width="60" height="88">
+      <g fill="#0a0603" stroke="#0a0603" stroke-linecap="round">
+        <circle cx="2" cy="-48" r="10" stroke="none"/>
+        <line x1="1" y1="-38" x2="-1" y2="-16" stroke-width="9"/>
+        <line x1="0" y1="-30" x2="-14" y2="-38" stroke-width="5.5"/>
+        <line x1="-14" y1="-38" x2="-18" y2="-30" stroke-width="5.5"/>
+        <line x1="0" y1="-30" x2="14" y2="-22" stroke-width="5.5"/>
+        <line x1="14" y1="-22" x2="18" y2="-14" stroke-width="5.5"/>
+        <line x1="-1" y1="-16" x2="-16" y2="-2" stroke-width="6.5"/>
+        <line x1="-16" y1="-2" x2="-20" y2="8" stroke-width="6.5"/>
+        <line x1="-1" y1="-16" x2="12" y2="-2" stroke-width="6.5"/>
+        <line x1="12" y1="-2" x2="10" y2="10" stroke-width="6.5"/>
+        <ellipse cx="0" cy="12" rx="18" ry="4" opacity="0.3" stroke="none"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Door standing in savannah -->
+  <div id="door-wrap">
+    <div class="door-frame">
+      <div class="door-glow"></div>
+      <div class="door-panel">
+        <div class="door-handle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Room scene (fades in after door opens) -->
+  <div id="room-scene">
+    <svg id="room-svg" viewBox="0 0 1400 780" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="room-amb" cx="50%" cy="38%" r="30%">
+          <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.1"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="scr-g" cx="50%" cy="50%" r="55%">
+          <stop offset="0%"   stop-color="#003d5c"/>
+          <stop offset="100%" stop-color="#020c1a"/>
+        </radialGradient>
+        <radialGradient id="mon-s" cx="50%" cy="46%" r="32%">
+          <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.09"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Dark room -->
+      <rect width="1400" height="780" fill="#040810"/>
+      <rect x="0" y="0" width="1400" height="468" fill="#050e1a"/>
+      <line x1="0" y1="468" x2="1400" y2="468" stroke="#0d1b2e" stroke-width="1.5" opacity="0.5"/>
+      <rect width="1400" height="780" fill="url(#room-amb)"/>
+
+      <!-- Monitor -->
+      <rect x="554" y="146" width="292" height="192" rx="7" fill="#091422" stroke="#1e3a5f" stroke-width="2.5"/>
+      <rect x="566" y="157" width="268" height="170" rx="3" fill="url(#scr-g)"/>
+      <!-- Screen text -->
+      <text x="580" y="184" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.9">SYSTEM BOOT</text>
+      <text x="580" y="200" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.75">» Connecting to data systems...</text>
+      <text x="580" y="216" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="9" opacity="0.65">» Loading control room interface...</text>
+      <!-- Loading bar -->
+      <rect x="580" y="228" width="240" height="7" rx="3" fill="#112240"/>
+      <rect x="580" y="228" width="0" height="7" rx="3" fill="#00d4ff" opacity="0.7">
+        <animate attributeName="width" values="0;240;0" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <!-- Scanlines on screen -->
+      <rect x="566" y="157" width="268" height="170" rx="3" fill="url(#scanlines)" opacity="0.08"/>
+
+      <!-- Monitor stand -->
+      <rect x="688" y="338" width="24" height="30" rx="2" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+      <rect x="658" y="366" width="84" height="10" rx="3" fill="#0d1b2e" stroke="#1e3a5f" stroke-width="1"/>
+
+      <!-- Monitor surrounding glow -->
+      <rect width="1400" height="780" fill="url(#mon-s)" pointer-events="none"/>
+
+      <!-- Desk -->
+      <rect x="260" y="376" width="880" height="58" rx="4" fill="#0a1428" stroke="#1e3a5f" stroke-width="1.5"/>
+      <rect x="260" y="432" width="880" height="38" rx="2" fill="#070e1e"/>
+      <!-- Keyboard -->
+      <rect x="604" y="381" width="192" height="28" rx="4" fill="#0d1b2e" stroke="#1e3a5f" stroke-width="1"/>
+      <rect x="610" y="387" width="180" height="4" rx="1" fill="#112240"/>
+      <rect x="614" y="395" width="172" height="4" rx="1" fill="#112240"/>
+
+      <!-- Boy seated silhouette -->
+      <rect x="668" y="264" width="64" height="110" rx="6" fill="#060a14"/>
+      <ellipse cx="700" cy="332" rx="34" ry="38" fill="#08090e"/>
+      <circle cx="700" cy="258" r="27" fill="#08090e"/>
+      <!-- Arms reaching to keyboard -->
+      <path d="M 668 318 C 644 328 622 348 610 376" stroke="#08090e" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <path d="M 732 318 C 756 328 778 348 790 376" stroke="#08090e" stroke-width="14" fill="none" stroke-linecap="round"/>
+      <!-- Eye reflections -->
+      <circle cx="690" cy="253" r="3.5" fill="#001e35"/>
+      <circle cx="710" cy="253" r="3.5" fill="#001e35"/>
+      <circle cx="690" cy="253" r="1.5" fill="#00d4ff" opacity="0.25"><animate attributeName="opacity" values="0.25;0.52;0.25" dur="2.2s" repeatCount="indefinite"/></circle>
+      <circle cx="710" cy="253" r="1.5" fill="#00d4ff" opacity="0.25"><animate attributeName="opacity" values="0.25;0.52;0.25" dur="2.2s" begin="0.5s" repeatCount="indefinite"/></circle>
+    </svg>
+
+    <!-- Animated cursor -->
+    <div id="room-cursor">
+      <svg width="22" height="26" viewBox="0 0 22 26">
+        <path d="M 2 2 L 2 20 L 7 15 L 10 22 L 13 20.5 L 10 13.5 L 17 13.5 Z" fill="white" stroke="#0a0603" stroke-width="1.2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div id="click-ripple"></div>
+    <div id="intro-flash"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CONTROL ROOM
+════════════════════════════════════════════════════ -->
+<div id="ctrl-room">
+
+<a href="index.html" id="back-link">← PORTFOLIO</a>
+<div id="hint">CLICK OBJECTS TO EXPLORE</div>
+
+<!-- Mobile fallback -->
+<div id="mobile-msg">
+  <p>This experience is designed for a larger screen.<br>Visit on desktop for the full control room.</p>
+  <a href="index.html">← View Portfolio</a>
+</div>
+
+<!-- Overlay -->
+<div id="overlay"></div>
+
+<!-- Side panel -->
+<div id="panel">
+  <button id="panel-close">×</button>
+  <div id="panel-content"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SCENE
+════════════════════════════════════════════════════ -->
+<svg id="scene" viewBox="0 0 1400 780" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="scanlines" x="0" y="0" width="1" height="4" patternUnits="userSpaceOnUse">
+      <rect width="1" height="2" fill="#000" opacity="0.6"/>
+    </pattern>
+
+    <radialGradient id="glow-main" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-green-rg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00ff88" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-left" cx="15%" cy="45%" r="35%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="floor-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#060d1a"/>
+    </linearGradient>
+    <linearGradient id="rack-g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0d1b2e"/>
+      <stop offset="100%" stop-color="#091422"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── BACKGROUND ── -->
+  <rect width="1400" height="780" fill="#060d1a"/>
+  <rect width="1400" height="780" fill="url(#glow-left)"/>
+
+  <!-- Back wall -->
+  <rect x="0" y="0" width="1400" height="558" fill="#070e1c"/>
+
+  <!-- Floor/wall line -->
+  <line x1="0" y1="558" x2="1400" y2="558" stroke="#1e3a5f" stroke-width="1.5"/>
+
+  <!-- Floor -->
+  <rect x="0" y="558" width="1400" height="222" fill="url(#floor-g)"/>
+
+  <!-- Floor perspective grid -->
+  <g opacity="0.07" stroke="#00d4ff" stroke-width="0.5">
+    <line x1="0" y1="596" x2="1400" y2="596"/>
+    <line x1="0" y1="636" x2="1400" y2="636"/>
+    <line x1="0" y1="678" x2="1400" y2="678"/>
+    <line x1="0" y1="722" x2="1400" y2="722"/>
+  </g>
+  <g opacity="0.055" stroke="#00d4ff" stroke-width="0.5">
+    <line x1="700" y1="558" x2="0"    y2="780"/>
+    <line x1="700" y1="558" x2="140"  y2="780"/>
+    <line x1="700" y1="558" x2="280"  y2="780"/>
+    <line x1="700" y1="558" x2="420"  y2="780"/>
+    <line x1="700" y1="558" x2="560"  y2="780"/>
+    <line x1="700" y1="558" x2="700"  y2="780"/>
+    <line x1="700" y1="558" x2="840"  y2="780"/>
+    <line x1="700" y1="558" x2="980"  y2="780"/>
+    <line x1="700" y1="558" x2="1120" y2="780"/>
+    <line x1="700" y1="558" x2="1260" y2="780"/>
+    <line x1="700" y1="558" x2="1400" y2="780"/>
+  </g>
+
+  <!-- Wall panels (vertical dividers) -->
+  <line x1="280" y1="0" x2="280" y2="558" stroke="#0d1b2e" stroke-width="1.5"/>
+  <line x1="1060" y1="0" x2="1060" y2="558" stroke="#0d1b2e" stroke-width="1.5"/>
+
+  <!-- Ceiling cable tray -->
+  <rect x="0" y="0" width="1400" height="14" fill="#0a1628"/>
+  <line x1="0" y1="14" x2="1400" y2="14" stroke="#1e3a5f" stroke-width="1"/>
+  <g stroke="#1e3a5f" stroke-width="0.75" opacity="0.5">
+    <line x1="175" y1="0" x2="175" y2="14"/>
+    <line x1="350" y1="0" x2="350" y2="14"/>
+    <line x1="525" y1="0" x2="525" y2="14"/>
+    <line x1="700" y1="0" x2="700" y2="14"/>
+    <line x1="875" y1="0" x2="875" y2="14"/>
+    <line x1="1050" y1="0" x2="1050" y2="14"/>
+    <line x1="1225" y1="0" x2="1225" y2="14"/>
+  </g>
+
+  <!-- Ceiling-to-rack cables -->
+  <path d="M 115 14 Q 115 55 108 80" stroke="#1e3a5f" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 195 14 Q 200 55 205 80" stroke="#1e3a5f" stroke-width="1.5" fill="none" opacity="0.4"/>
+  <path d="M 600 14 Q 598 50 595 85" stroke="#1e3a5f" stroke-width="1.5" fill="none" opacity="0.35"/>
+  <path d="M 1120 14 Q 1118 50 1115 85" stroke="#1e3a5f" stroke-width="1.5" fill="none" opacity="0.35"/>
+
+  <!-- Left wall indicator strip -->
+  <rect x="0" y="80" width="6" height="380" rx="3" fill="#0a1628" stroke="#1e3a5f" stroke-width="1"/>
+  <circle cx="3" cy="120" r="2.5" fill="#00ff88"><animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/></circle>
+  <circle cx="3" cy="145" r="2.5" fill="#00d4ff"><animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/></circle>
+  <circle cx="3" cy="170" r="2.5" fill="#ffb300"><animate attributeName="opacity" values="1;0.4;1" dur="2.7s" repeatCount="indefinite"/></circle>
+  <circle cx="3" cy="195" r="2.5" fill="#00ff88"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══════════════════════════════════════════════════
+       SERVER RACK — Experience
+  ═══════════════════════════════════════════════════ -->
+  <g id="exp-rack" class="interactive" data-section="experience">
+
+    <!-- Ambient glow -->
+    <ellipse cx="145" cy="310" rx="140" ry="250" fill="url(#glow-left)" class="idle-glow"/>
+
+    <!-- Rack housing -->
+    <rect class="glow-target" x="40" y="78" width="210" height="468" rx="5" fill="url(#rack-g)" stroke="#1e3a5f" stroke-width="1.5"/>
+
+    <!-- Top bar -->
+    <rect x="40" y="78" width="210" height="24" rx="5" fill="#112240"/>
+    <text x="145" y="94" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="700" letter-spacing="1.5">RACK-01 · MISSION LOG</text>
+
+    <!-- Rack units (9 rows, y start 112, step 44) -->
+    <!-- Row helper: body, screen-slot, led-g, led-g, led-a -->
+    <rect x="52" y="112" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="116" width="118" height="24" rx="1" fill="#060d1a"/>
+    <text x="68" y="131" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">EDUCATE-ENG-MGR</text>
+    <circle class="led-g" cx="192" cy="122" r="3"/><circle class="led-g" cx="203" cy="122" r="3"/><circle class="led-c" cx="192" cy="133" r="2"/>
+
+    <rect x="52" y="152" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="156" width="118" height="24" rx="1" fill="#060d1a"/>
+    <text x="68" y="171" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">EDUCATE-SDE</text>
+    <circle class="led-g" cx="192" cy="162" r="3"/><circle class="led-g" cx="203" cy="162" r="3"/><circle class="led-g" cx="192" cy="173" r="2"/>
+
+    <rect x="52" y="192" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="196" width="118" height="24" rx="1" fill="#060d1a"/>
+    <text x="68" y="211" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">WOWZI-DATA-LEAD</text>
+    <circle class="led-g" cx="192" cy="202" r="3"/><circle class="led-a" cx="203" cy="202" r="3"/><circle class="led-g" cx="192" cy="213" r="2"/>
+
+    <rect x="52" y="232" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="236" width="118" height="24" rx="1" fill="#060d1a"/>
+    <text x="68" y="251" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">ICONIA-TECH-LEAD</text>
+    <circle class="led-g" cx="192" cy="242" r="3"/><circle class="led-g" cx="203" cy="242" r="3"/><circle class="led-a" cx="192" cy="253" r="2"/>
+
+    <rect x="52" y="272" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="276" width="118" height="24" rx="1" fill="#060d1a"/>
+    <text x="68" y="291" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">LEARNING-LIONS</text>
+    <circle class="led-g" cx="192" cy="282" r="3"/><circle class="led-g" cx="203" cy="282" r="3"/><circle class="led-g" cx="192" cy="293" r="2"/>
+
+    <rect x="52" y="312" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="316" width="118" height="24" rx="1" fill="#060d1a"/>
+    <circle class="led-g" cx="192" cy="322" r="3"/><circle class="led-c" cx="203" cy="322" r="3"/><circle class="led-g" cx="192" cy="333" r="2"/>
+
+    <rect x="52" y="352" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="356" width="118" height="24" rx="1" fill="#060d1a"/>
+    <circle class="led-g" cx="192" cy="362" r="3"/><circle class="led-g" cx="203" cy="362" r="3"/><circle class="led-a" cx="192" cy="373" r="2"/>
+
+    <rect x="52" y="392" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="396" width="118" height="24" rx="1" fill="#060d1a"/>
+    <circle class="led-g" cx="192" cy="402" r="3"/><circle class="led-g" cx="203" cy="402" r="3"/><circle class="led-g" cx="192" cy="413" r="2"/>
+
+    <rect x="52" y="432" width="186" height="32" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <rect x="57" y="436" width="118" height="24" rx="1" fill="#060d1a"/>
+    <circle class="led-c" cx="192" cy="442" r="3"/><circle class="led-g" cx="203" cy="442" r="3"/><circle class="led-g" cx="192" cy="453" r="2"/>
+
+    <!-- Rack bottom bezel -->
+    <rect x="52" y="472" width="186" height="62" rx="2" fill="#091422" stroke="#1a2f50" stroke-width="1"/>
+    <text x="145" y="490" text-anchor="middle" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="7">12 YRS · 4 COMPANIES</text>
+    <text x="145" y="502" text-anchor="middle" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="7">EAST AFRICA · DATA ENG</text>
+    <!-- Uptime bar -->
+    <rect x="62" y="512" width="166" height="6" rx="3" fill="#112240"/>
+    <rect x="62" y="512" width="156" height="6" rx="3" fill="#00d4ff" opacity="0.6"/>
+    <text x="145" y="528" text-anchor="middle" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="6.5">UPTIME: 12 YRS</text>
+
+    <!-- Label -->
+    <text class="label-text" x="145" y="574" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" letter-spacing="2">EXPERIENCE</text>
+    <text class="label-sub" x="145" y="589" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">CLICK TO VIEW</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════
+       DATA PIPELINE FLOWS
+  ═══════════════════════════════════════════════════ -->
+
+  <!-- Rack → main monitor -->
+  <path d="M 250 290 Q 310 290 345 285" stroke="#1e3a5f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.5"/>
+  <path d="M 250 320 Q 310 320 345 315" stroke="#1e3a5f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.4"/>
+
+  <circle r="3" fill="#00d4ff" opacity="0.85">
+    <animateMotion dur="2.8s" repeatCount="indefinite">
+      <mpath href="#fp1"/>
+    </animateMotion>
+  </circle>
+  <path id="fp1" d="M 250 290 Q 310 290 345 285" fill="none"/>
+
+  <circle r="2.5" fill="#00d4ff" opacity="0.6">
+    <animateMotion dur="3.6s" repeatCount="indefinite" begin="1.4s">
+      <mpath href="#fp2"/>
+    </animateMotion>
+  </circle>
+  <path id="fp2" d="M 250 320 Q 310 320 345 315" fill="none"/>
+
+  <!-- Main monitor → right monitors -->
+  <path d="M 955 230 Q 1010 230 1055 215" stroke="#1e3a5f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.45"/>
+  <path d="M 955 320 Q 1010 340 1055 360" stroke="#1e3a5f" stroke-width="1.5" fill="none" stroke-dasharray="5 4" opacity="0.4"/>
+
+  <circle r="2.5" fill="#00ff88" opacity="0.75">
+    <animateMotion dur="3.2s" repeatCount="indefinite" begin="0.6s">
+      <mpath href="#fp3"/>
+    </animateMotion>
+  </circle>
+  <path id="fp3" d="M 955 230 Q 1010 230 1055 215" fill="none"/>
+
+  <circle r="2" fill="#00ff88" opacity="0.6">
+    <animateMotion dur="4s" repeatCount="indefinite" begin="2s">
+      <mpath href="#fp4"/>
+    </animateMotion>
+  </circle>
+  <path id="fp4" d="M 955 320 Q 1010 340 1055 360" fill="none"/>
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN MONITOR — About
+  ═══════════════════════════════════════════════════ -->
+  <g id="about-monitor" class="interactive" data-section="about">
+
+    <!-- Screen glow -->
+    <ellipse cx="650" cy="300" rx="340" ry="230" fill="url(#glow-main)" class="idle-glow"/>
+
+    <!-- Bezel -->
+    <rect class="glow-target" x="340" y="78" width="618" height="400" rx="8" fill="#091422" stroke="#1e3a5f" stroke-width="2"/>
+
+    <!-- Screen -->
+    <rect x="354" y="92" width="590" height="372" rx="4" fill="#060d1a"/>
+
+    <!-- Screen header bar -->
+    <rect x="354" y="92" width="590" height="26" rx="4" fill="#0d1b2e"/>
+    <circle cx="370" cy="105" r="4.5" fill="#ff4466" opacity="0.7"/>
+    <circle cx="386" cy="105" r="4.5" fill="#ffb300" opacity="0.7"/>
+    <circle cx="402" cy="105" r="4.5" fill="#00ff88" opacity="0.7"/>
+    <text x="649" y="109" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8.5" letter-spacing="2">OPS_CENTER v2.0 — ACTIVE</text>
+
+    <!-- Pipeline DAG -->
+    <!-- Nodes -->
+    <rect x="385" y="140" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#00d4ff" stroke-width="1.5"/>
+    <text x="424" y="154" text-anchor="middle" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">SOURCE</text>
+    <text x="424" y="165" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">raw_data</text>
+
+    <rect x="503" y="126" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#00ff88" stroke-width="1.5"/>
+    <text x="542" y="140" text-anchor="middle" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="8">INGEST</text>
+    <text x="542" y="151" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">airbyte/mage</text>
+
+    <rect x="503" y="168" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#00ff88" stroke-width="1.5"/>
+    <text x="542" y="182" text-anchor="middle" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="8">TRANSFORM</text>
+    <text x="542" y="193" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">dbt_models</text>
+
+    <rect x="625" y="145" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#ffb300" stroke-width="1.5"/>
+    <text x="664" y="159" text-anchor="middle" fill="#ffb300" font-family="'JetBrains Mono',monospace" font-size="8">WAREHOUSE</text>
+    <text x="664" y="170" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">bigquery</text>
+
+    <rect x="747" y="130" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#00d4ff" stroke-width="1.5"/>
+    <text x="786" y="144" text-anchor="middle" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">SERVE</text>
+    <text x="786" y="155" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">analytics</text>
+
+    <rect x="747" y="174" width="78" height="32" rx="4" fill="#0d1b2e" stroke="#00d4ff" stroke-width="1.5"/>
+    <text x="786" y="188" text-anchor="middle" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">AI ENGINE</text>
+    <text x="786" y="199" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6.5">llm/rag/mcp</text>
+
+    <!-- Edges -->
+    <line x1="463" y1="156" x2="503" y2="142" stroke="#1e3a5f" stroke-width="1.5"/>
+    <line x1="463" y1="156" x2="503" y2="184" stroke="#1e3a5f" stroke-width="1.5"/>
+    <line x1="581" y1="142" x2="625" y2="157" stroke="#1e3a5f" stroke-width="1.5"/>
+    <line x1="581" y1="184" x2="625" y2="162" stroke="#1e3a5f" stroke-width="1.5"/>
+    <line x1="703" y1="162" x2="747" y2="146" stroke="#1e3a5f" stroke-width="1.5"/>
+    <line x1="703" y1="162" x2="747" y2="190" stroke="#1e3a5f" stroke-width="1.5"/>
+
+    <!-- Animated DAG particle -->
+    <circle r="3.5" fill="#00d4ff" opacity="0.9">
+      <animateMotion dur="5s" repeatCount="indefinite">
+        <mpath href="#dag-p"/>
+      </animateMotion>
+    </circle>
+    <path id="dag-p" d="M 385 156 L 503 142 L 581 142 L 625 157 L 703 162 L 747 146 L 825 146" fill="none"/>
+
+    <!-- Divider -->
+    <line x1="354" y1="224" x2="944" y2="224" stroke="#1e3a5f" stroke-width="1"/>
+
+    <!-- Left column: identity -->
+    <text x="376" y="248" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1.5">OPERATOR</text>
+    <text x="376" y="270" fill="#ffffff" font-family="'JetBrains Mono',monospace" font-size="14" font-weight="700">PATRICK GICHINI</text>
+    <text x="376" y="288" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="9">SR. DATA ENG MANAGER</text>
+
+    <line x1="376" y1="298" x2="596" y2="298" stroke="#1e3a5f" stroke-width="1"/>
+
+    <text x="376" y="315" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7.5">LOCATION</text>
+    <text x="376" y="329" fill="#ccd6f6" font-family="'JetBrains Mono',monospace" font-size="9">NAIROBI, KENYA</text>
+
+    <text x="376" y="348" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7.5">ACTIVE MISSION</text>
+    <text x="376" y="362" fill="#ccd6f6" font-family="'JetBrains Mono',monospace" font-size="9">EDUCATE! — EAST AFRICA</text>
+
+    <text x="376" y="380" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7.5">STATUS</text>
+    <circle cx="450" cy="376" r="4" fill="#00ff88">
+      <animate attributeName="opacity" values="1;0.25;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="460" y="380" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="9">ACTIVE — NOT SEEKING</text>
+
+    <!-- Divider between columns -->
+    <line x1="606" y1="224" x2="606" y2="464" stroke="#1e3a5f" stroke-width="1"/>
+
+    <!-- Right column: metrics -->
+    <text x="626" y="248" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1.5">METRICS</text>
+
+    <text x="626" y="268" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">YEARS IN TECH</text>
+    <rect x="626" y="272" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="272" width="224" height="6" rx="3" fill="#00d4ff" opacity="0.75"/>
+    <text x="930" y="278" text-anchor="end" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">12</text>
+
+    <text x="626" y="296" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">YEARS IN DATA</text>
+    <rect x="626" y="300" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="300" width="186" height="6" rx="3" fill="#00d4ff" opacity="0.75"/>
+    <text x="930" y="306" text-anchor="end" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">10</text>
+
+    <text x="626" y="324" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">TEAMS LED</text>
+    <rect x="626" y="328" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="328" width="80" height="6" rx="3" fill="#00ff88" opacity="0.75"/>
+    <text x="930" y="334" text-anchor="end" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="8">3</text>
+
+    <text x="626" y="352" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">ENTERPRISE WAREHOUSES</text>
+    <rect x="626" y="356" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="356" width="260" height="6" rx="3" fill="#ffb300" opacity="0.75"/>
+    <text x="930" y="362" text-anchor="end" fill="#ffb300" font-family="'JetBrains Mono',monospace" font-size="8">10+</text>
+
+    <text x="626" y="380" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">FORECASTING ACCURACY</text>
+    <rect x="626" y="384" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="384" width="250" height="6" rx="3" fill="#00ff88" opacity="0.6"/>
+    <text x="930" y="390" text-anchor="end" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="8">85%</text>
+
+    <text x="626" y="408" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">QUERY COST REDUCTION</text>
+    <rect x="626" y="412" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="412" width="88" height="6" rx="3" fill="#ffb300" opacity="0.75"/>
+    <text x="930" y="418" text-anchor="end" fill="#ffb300" font-family="'JetBrains Mono',monospace" font-size="8">30%</text>
+
+    <text x="626" y="436" fill="#8892b0" font-family="'JetBrains Mono',monospace" font-size="7.5">TIME-TO-INSIGHT CUT</text>
+    <rect x="626" y="440" width="296" height="6" rx="3" fill="#112240"/>
+    <rect x="626" y="440" width="148" height="6" rx="3" fill="#00d4ff" opacity="0.75"/>
+    <text x="930" y="446" text-anchor="end" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">50%+</text>
+
+    <!-- Scanline overlay -->
+    <rect x="354" y="92" width="590" height="372" rx="4" fill="url(#scanlines)" opacity="0.07" pointer-events="none"/>
+
+    <!-- Monitor stand -->
+    <rect x="612" y="478" width="74" height="18" rx="2" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+    <rect x="560" y="494" width="178" height="10" rx="3" fill="#0d1b2e" stroke="#1e3a5f" stroke-width="1.5"/>
+
+    <!-- Label -->
+    <text class="label-text" x="649" y="528" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" letter-spacing="2">ABOUT</text>
+    <text class="label-sub" x="649" y="543" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">CLICK TO VIEW</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════
+       RIGHT MONITORS — Projects
+  ═══════════════════════════════════════════════════ -->
+  <g id="projects-monitor" class="interactive" data-section="projects">
+
+    <!-- Glow -->
+    <ellipse cx="1185" cy="260" rx="195" ry="195" fill="url(#glow-green-rg)" class="idle-glow"/>
+
+    <!-- Top monitor -->
+    <rect class="glow-target" x="1058" y="78" width="310" height="196" rx="6" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+    <rect x="1070" y="90" width="286" height="172" rx="3" fill="#060d1a"/>
+    <rect x="1070" y="90" width="286" height="22" rx="3" fill="#0d1b2e"/>
+    <text x="1213" y="104" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">PROJECTS.SH — SHIPPED BUILDS</text>
+
+    <!-- Bar chart (left half of screen) -->
+    <!-- Background bars -->
+    <rect x="1086" y="124" width="8" height="78" rx="2" fill="#112240"/>
+    <rect x="1104" y="124" width="8" height="78" rx="2" fill="#112240"/>
+    <rect x="1122" y="124" width="8" height="78" rx="2" fill="#112240"/>
+    <rect x="1140" y="124" width="8" height="78" rx="2" fill="#112240"/>
+    <rect x="1158" y="124" width="8" height="78" rx="2" fill="#112240"/>
+    <!-- Filled bars -->
+    <rect x="1086" y="162" width="8" height="40" rx="2" fill="#00ff88" opacity="0.75"/>
+    <rect x="1104" y="134" width="8" height="68" rx="2" fill="#00d4ff" opacity="0.75"/>
+    <rect x="1122" y="148" width="8" height="54" rx="2" fill="#ffb300" opacity="0.75"/>
+    <rect x="1140" y="156" width="8" height="46" rx="2" fill="#00ff88" opacity="0.6"/>
+    <rect x="1158" y="145" width="8" height="57" rx="2" fill="#00d4ff" opacity="0.6"/>
+    <!-- Bar labels -->
+    <text x="1090" y="212" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6">NLP</text>
+    <text x="1108" y="212" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6">DWH</text>
+    <text x="1126" y="212" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6">ML</text>
+    <text x="1144" y="212" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6">ELT</text>
+    <text x="1162" y="212" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="6">AI</text>
+
+    <!-- Project list (right half) -->
+    <line x1="1178" y1="112" x2="1178" y2="258" stroke="#1e3a5f" stroke-width="1"/>
+    <circle cx="1188" cy="130" r="3" fill="#00ff88" opacity="0.8"/>
+    <text x="1198" y="134" fill="#ccd6f6" font-family="'JetBrains Mono',monospace" font-size="7.5">NLP Self-Serve Analytics</text>
+    <circle cx="1188" cy="150" r="3" fill="#00d4ff" opacity="0.8"/>
+    <text x="1198" y="154" fill="#ccd6f6" font-family="'JetBrains Mono',monospace" font-size="7.5">Wowzi Data Infrastructure</text>
+    <circle cx="1188" cy="170" r="3" fill="#ffb300" opacity="0.8"/>
+    <text x="1198" y="174" fill="#ccd6f6" font-family="'JetBrains Mono',monospace" font-size="7.5">Demand Prediction Engine</text>
+    <text x="1188" y="200" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="7">+more...</text>
+
+    <rect x="1070" y="90" width="286" height="172" rx="3" fill="url(#scanlines)" opacity="0.07" pointer-events="none"/>
+
+    <!-- Bottom monitor -->
+    <rect class="glow-target" x="1088" y="296" width="274" height="162" rx="6" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+    <rect x="1100" y="308" width="250" height="138" rx="3" fill="#060d1a"/>
+    <rect x="1100" y="308" width="250" height="20" rx="3" fill="#0d1b2e"/>
+    <text x="1225" y="321" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">SKILLS.LOG</text>
+
+    <text x="1116" y="344" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">» LEADERSHIP</text>
+    <text x="1116" y="357" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">   team_building · roadmap · strategy</text>
+    <text x="1116" y="373" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">» DATA ARCHITECTURE</text>
+    <text x="1116" y="386" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">   warehousing · pipelines · design</text>
+    <text x="1116" y="402" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="8">» AI ENGINEERING</text>
+    <text x="1116" y="415" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">   LLM · RAG · MCP · analytics</text>
+    <text x="1116" y="435" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">   [click for full skill map]</text>
+
+    <rect x="1100" y="308" width="250" height="138" rx="3" fill="url(#scanlines)" opacity="0.07" pointer-events="none"/>
+
+    <!-- Monitor stand (shared) -->
+    <rect x="1196" y="274" width="42" height="20" rx="2" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+    <rect x="1172" y="292" width="90" height="8" rx="2" fill="#0d1b2e" stroke="#1e3a5f" stroke-width="1.5"/>
+
+    <!-- Label -->
+    <text class="label-text" x="1225" y="486" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" letter-spacing="2">PROJECTS</text>
+    <text class="label-sub" x="1225" y="501" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">CLICK TO VIEW</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════
+       SKILLS TERMINAL — Skills (desk surface)
+  ═══════════════════════════════════════════════════ -->
+  <g id="skills-terminal" class="interactive" data-section="skills">
+
+    <!-- Terminal box on desk -->
+    <rect class="glow-target" x="398" y="516" width="470" height="88" rx="6" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+    <rect x="410" y="526" width="446" height="68" rx="3" fill="#060d1a"/>
+
+    <!-- Window chrome -->
+    <circle cx="423" cy="534" r="4" fill="#ff4466" opacity="0.6"/>
+    <circle cx="437" cy="534" r="4" fill="#ffb300" opacity="0.6"/>
+    <circle cx="451" cy="534" r="4" fill="#00ff88" opacity="0.6"/>
+    <text x="633" y="537" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">SKILLS_TERMINAL — CAPABILITY INDEX</text>
+
+    <!-- Terminal output -->
+    <text x="420" y="556" fill="#00ff88" font-family="'JetBrains Mono',monospace" font-size="9">$ list_capabilities --format=summary</text>
+    <text x="420" y="572" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8">leadership · data_arch · analytics · governance · ai_eng · ml_eng</text>
+    <text x="420" y="586" fill="#00d4ff" font-family="'JetBrains Mono',monospace" font-size="9">$ <tspan class="cursor">█</tspan></text>
+
+    <rect x="410" y="526" width="446" height="68" rx="3" fill="url(#scanlines)" opacity="0.07" pointer-events="none"/>
+
+    <!-- Label -->
+    <text class="label-text" x="633" y="627" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" letter-spacing="2">SKILLS</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════
+       COMMS TERMINAL — Contact
+  ═══════════════════════════════════════════════════ -->
+  <g id="contact-comms" class="interactive" data-section="contact">
+
+    <!-- Main unit -->
+    <rect class="glow-target" x="1234" y="558" width="136" height="110" rx="6" fill="#091422" stroke="#1e3a5f" stroke-width="1.5"/>
+
+    <!-- Screen -->
+    <rect x="1246" y="570" width="112" height="58" rx="3" fill="#060d1a" stroke="#1e3a5f" stroke-width="1"/>
+
+    <text x="1302" y="586" text-anchor="middle" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="8" letter-spacing="1">COMMS</text>
+
+    <!-- Signal bars -->
+    <rect x="1270" y="596" width="6" height="14" rx="1" fill="#00ff88" opacity="0.3"/>
+    <rect x="1280" y="592" width="6" height="18" rx="1" fill="#00ff88" opacity="0.5"/>
+    <rect x="1290" y="588" width="6" height="22" rx="1" fill="#00ff88" opacity="0.7"/>
+    <rect x="1300" y="584" width="6" height="26" rx="1" fill="#00ff88" opacity="0.9"/>
+    <rect x="1310" y="588" width="6" height="22" rx="1" fill="#00ff88" opacity="0.7"/>
+    <rect x="1320" y="592" width="6" height="18" rx="1" fill="#00ff88" opacity="0.5"/>
+
+    <!-- Status -->
+    <circle cx="1253" cy="643" r="4" fill="#00ff88">
+      <animate attributeName="opacity" values="1;0.2;1" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <text x="1262" y="647" fill="#2a4a7f" font-family="'JetBrains Mono',monospace" font-size="7">OPEN CHANNEL</text>
+
+    <!-- Antenna -->
+    <line x1="1302" y1="558" x2="1302" y2="532" stroke="#1e3a5f" stroke-width="2"/>
+    <circle cx="1302" cy="530" r="3.5" fill="#112240" stroke="#1e3a5f" stroke-width="1"/>
+    <circle cx="1302" cy="530" r="2" fill="#00d4ff" opacity="0.7">
+      <animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Label -->
+    <text class="label-text" x="1302" y="688" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700" letter-spacing="2">CONTACT</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════
+       DECORATIVE — right wall strip
+  ═══════════════════════════════════════════════════ -->
+  <rect x="1394" y="80" width="6" height="380" rx="3" fill="#0a1628" stroke="#1e3a5f" stroke-width="1"/>
+  <circle cx="1397" cy="130" r="2.5" fill="#00ff88"><animate attributeName="opacity" values="1;0.2;1" dur="1.9s" repeatCount="indefinite"/></circle>
+  <circle cx="1397" cy="155" r="2.5" fill="#00d4ff"><animate attributeName="opacity" values="0.4;1;0.4" dur="2.6s" repeatCount="indefinite"/></circle>
+  <circle cx="1397" cy="180" r="2.5" fill="#ffb300"><animate attributeName="opacity" values="1;0.3;1" dur="3.1s" repeatCount="indefinite"/></circle>
+
+  <!-- ═══════════════════════════════════════════════════
+       STATUS BAR
+  ═══════════════════════════════════════════════════ -->
+  <rect x="0" y="754" width="1400" height="26" fill="#070e1c"/>
+  <line x1="0" y1="754" x2="1400" y2="754" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="20" y="770" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="8.5">SYS: NOMINAL</text>
+  <circle cx="112" cy="766" r="3" fill="#00ff88"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></circle>
+  <text x="700" y="770" text-anchor="middle" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="8.5">gichiniwaruingi.com/interactive</text>
+  <text id="sys-clock" x="1380" y="770" text-anchor="end" fill="#1e3a5f" font-family="'JetBrains Mono',monospace" font-size="8.5">--:--:--</text>
+</svg>
+
+</div><!-- /ctrl-room -->
+
+<script>
+// ── Intro timeline ──────────────────────────────
+(function runIntro() {
+  const intro      = document.getElementById('intro');
+  const ctrlRoom   = document.getElementById('ctrl-room');
+  const boyRunner  = document.getElementById('boy-runner');
+  const doorWrap   = document.getElementById('door-wrap');
+  const doorPanel  = document.querySelector('.door-panel');
+  const svSvg      = document.getElementById('sv-svg');
+  const roomScene  = document.getElementById('room-scene');
+  const cursor     = document.getElementById('room-cursor');
+  const ripple     = document.getElementById('click-ripple');
+  const flash      = document.getElementById('intro-flash');
+  const skipBtn    = document.getElementById('skip-btn');
+
+  function reveal() {
+    intro.classList.add('fade-out');
+    ctrlRoom.classList.add('reveal');
+    setTimeout(() => { intro.style.display = 'none'; }, 1000);
+  }
+
+  skipBtn.addEventListener('click', reveal);
+
+  // Boy reaches door — show door
+  setTimeout(() => doorWrap.classList.add('show'), 3600);
+  // Door swings open
+  setTimeout(() => doorPanel.classList.add('open'), 4000);
+  // Boy walks in and fades
+  setTimeout(() => boyRunner.classList.add('entering'), 4800);
+
+  // Transition: savannah fades, room fades in
+  setTimeout(() => {
+    svSvg.style.opacity = '0';
+    doorWrap.style.opacity = '0';
+    roomScene.classList.add('show');
+  }, 5300);
+
+  // Cursor appears
+  setTimeout(() => cursor.classList.add('show'), 6600);
+  // Cursor moves toward monitor
+  setTimeout(() => cursor.classList.add('move'), 7200);
+  // Click effect
+  setTimeout(() => {
+    ripple.classList.add('fire');
+    flash.classList.add('fire');
+  }, 8400);
+  // Reveal control room
+  setTimeout(reveal, 8900);
+})();
+
+// Clock
+(function tick() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+  document.getElementById('sys-clock').textContent = `${hh}:${mm}:${ss}`;
+  setTimeout(tick, 1000);
+})();
+
+// Panel content
+const sections = {
+  about: `
+    <span class="ptag">// OPERATOR PROFILE</span>
+    <h2>Patrick Gichini Waruingi</h2>
+    <h3>Senior Data Engineering Manager</h3>
+    <div class="stats-row">
+      <span class="stat-chip">📍 NAIROBI, KE</span>
+      <span class="stat-chip">12 YRS IN TECH</span>
+      <span class="stat-chip">10 YRS IN DATA</span>
+      <span class="stat-chip">3 TEAMS LED</span>
+      <span class="stat-chip">10+ WAREHOUSES</span>
+    </div>
+    <hr/>
+    <p>Building data engineering teams and the platforms they ship. 10 years in data engineering, now leading the teams that build it.</p>
+    <p>I stay technically close to the work — shaping architecture, reviewing critical decisions, and rolling up my sleeves when the problem demands it.</p>
+    <p>Currently at Educate!, building AI-powered data systems for social impact EdTech across Kenya, Uganda, Tanzania, and Rwanda.</p>
+    <hr/>
+    <a href="https://www.linkedin.com/in/patrick-gichini-a15692100/" target="_blank" class="clink">↗ LinkedIn — Patrick Gichini</a>
+    <a href="https://github.com/kanataki-zwei" target="_blank" class="clink">↗ GitHub — kanataki-zwei</a>
+    <a href="index.html" class="clink">← Back to full portfolio</a>
+  `,
+  experience: `
+    <span class="ptag">// MISSION LOG</span>
+    <h2>Experience</h2>
+    <h3>Career timeline</h3>
+    <hr/>
+    <div class="role">
+      <div class="role-title">Senior Data Engineering Manager</div>
+      <div class="role-company">Educate! · Nairobi, Kenya</div>
+      <div class="role-period">Aug 2026 – Present · Social enterprise / EdTech</div>
+      <ul>
+        <li>Building the data engineering function from the ground up — growing the team, bringing in engineering talent, and setting the org's data engineering roadmap.</li>
+        <li>Designing and building an AI-focused, org-wide context management pipeline that curates organisational knowledge for both human and AI use cases.</li>
+        <li>Building data systems, tools, and products that help teams manage and curate data better and deliver more value to youth.</li>
+        <li>Setting data management and operating standards, with compliance for the organisation and its products, including solutions that safeguard youth data.</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Senior Data Engineer</div>
+      <div class="role-company">Educate! · Nairobi, Kenya</div>
+      <div class="role-period">May 2025 – Aug 2026 · Social enterprise / EdTech</div>
+      <ul>
+        <li>Designed and implemented an enterprise data warehouse connecting data from multiple source systems across four countries, cutting time-to-insight by more than 50%.</li>
+        <li>Deployed an AI-powered self-serve analytics tool enabling non-technical stakeholders to query the warehouse in natural language.</li>
+        <li>Built custom tooling for pipeline setup and quality measurement, reducing pipeline failures by 25%.</li>
+        <li>Upskilled analytics team on automated modelling, speeding up dashboard readiness by 40%.</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Data Lead &amp; Sr Data Scientist</div>
+      <div class="role-company">Wowzi Technologies Inc · Nairobi, Kenya</div>
+      <div class="role-period">Oct 2022 – May 2025 · AdTech / Creator economy</div>
+      <ul>
+        <li>Led a team of 3 data professionals, driving the company's data strategy and delivery roadmap.</li>
+        <li>Designed and maintained cloud ELT pipelines processing millions of rows from product, marketing, and finance sources.</li>
+        <li>Optimised BigQuery query performance, reducing processing time and cloud costs by 30%.</li>
+        <li>Built a ML recommendation engine improving key campaign KPIs by 20%; developed churn prediction models cutting creator churn by 15%.</li>
+        <li>Led SOC 2 Type II and GDPR compliance implementation for data systems.</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Tech Lead &amp; Sr Data Engineer</div>
+      <div class="role-company">Iconia Technologies Ltd · Nairobi, Kenya</div>
+      <div class="role-period">Sept 2017 – Aug 2022 · Data consulting</div>
+      <ul>
+        <li>Led end-to-end delivery of data projects across finance, health, manufacturing, education, and retail clients.</li>
+        <li>Designed and built enterprise data warehouses (cloud and on-premise) for multi-industry clients.</li>
+        <li>Built automated alerting systems reducing stockouts by 65% and cutting ad-hoc analyst requests by 50%.</li>
+        <li>Deployed demand prediction models improving forecasting accuracy to ~85% and driving ~$1M in additional MRR.</li>
+      </ul>
+    </div>
+    <div class="role">
+      <div class="role-title">Earlier Roles</div>
+      <div class="role-company">Learning Lions · Tunapanda Institute</div>
+      <div class="role-period">2015 – 2017</div>
+      <ul>
+        <li>Sysadmin &amp; ICT Trainer at Learning Lions (Lodwar, Kenya).</li>
+        <li>Network Engineer &amp; ICT Trainer at Tunapanda Institute (Nairobi, Kenya).</li>
+      </ul>
+    </div>
+  `,
+  projects: `
+    <span class="ptag">// SHIPPED BUILDS</span>
+    <h2>Projects</h2>
+    <h3>Selected work</h3>
+    <hr/>
+    <div class="pcard">
+      <div class="pcard-title">Natural Language Self-Serve Analytics</div>
+      <div class="pcard-meta">AI Assistant For Analytics · Educate!</div>
+      <p class="pcard-desc">Designed and implemented a natural-language self-serve analytics tool using dbt MCP and Claude, enabling non-technical users to query the data warehouse in plain English. Reduced analyst workload on common queries by 50% and gave decision-makers on-demand access to data.</p>
+      <div class="ptags">
+        <span class="ptag-chip">dbt MCP</span>
+        <span class="ptag-chip">Claude AI</span>
+        <span class="ptag-chip">BigQuery</span>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-title">Data Infrastructure · Wowzi Technologies</div>
+      <div class="pcard-meta">Modern Data Stack</div>
+      <p class="pcard-desc">Designed and built a fully serverless modern data stack from scratch. Airbyte for multi-source ingestion into BigQuery, dbt for transformation, Prefect for orchestration on AWS ECS. BI layer with Apache Superset for self-serve internal analytics.</p>
+      <div class="ptags">
+        <span class="ptag-chip">Airbyte</span>
+        <span class="ptag-chip">dbt</span>
+        <span class="ptag-chip">Prefect</span>
+        <span class="ptag-chip">BigQuery</span>
+        <span class="ptag-chip">Superset</span>
+      </div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-title">Demand Prediction Engine</div>
+      <div class="pcard-meta">Inventory &amp; Revenue Impact · Iconia Technologies</div>
+      <p class="pcard-desc">Built a demand prediction solution for a multinational manufacturing client to forecast distributor demand and derive required inventory levels. Improved procurement and production planning efficiency by 85% and unlocked ~$1M in additional MRR previously lost to unserviceable backorders.</p>
+      <div class="ptags">
+        <span class="ptag-chip">Multiple Linear Regression</span>
+        <span class="ptag-chip">Dynamics NAV</span>
+        <span class="ptag-chip">Power BI</span>
+      </div>
+    </div>
+  `,
+  skills: `
+    <span class="ptag">// CAPABILITY INDEX</span>
+    <h2>Skills</h2>
+    <h3>Capabilities &amp; tools</h3>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">Leadership &amp; People Management</div>
+      <div class="chips">
+        <span class="chip">Team Building &amp; Hiring</span>
+        <span class="chip">Performance Management</span>
+        <span class="chip">Technical Mentorship</span>
+        <span class="chip">Stakeholder Management</span>
+        <span class="chip">Cross-functional Ops</span>
+        <span class="chip">Roadmap Ownership</span>
+        <span class="chip">Data Strategy</span>
+      </div>
+    </div>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">Data Architecture &amp; Engineering</div>
+      <div class="chips">
+        <span class="chip">Enterprise Data Warehousing</span>
+        <span class="chip">Pipeline Engineering</span>
+        <span class="chip">Data Systems Design</span>
+        <span class="chip">Custom Tool Building</span>
+        <span class="chip">Data Monitoring &amp; Quality</span>
+        <span class="chip">DevSecOps</span>
+        <span class="chip">Sensitive Data Management</span>
+      </div>
+    </div>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">AI Engineering</div>
+      <div class="chips">
+        <span class="chip">LLM Fine-tuning</span>
+        <span class="chip">RAG Systems</span>
+        <span class="chip">MCP Development</span>
+        <span class="chip">AI-powered Analytics</span>
+      </div>
+    </div>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">ML Engineering &amp; MLOps</div>
+      <div class="chips">
+        <span class="chip">Predictive Modelling</span>
+        <span class="chip">Classification</span>
+        <span class="chip">MLOps Pipelines</span>
+        <span class="chip">Forecasting (85% accuracy)</span>
+      </div>
+    </div>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">Analytics &amp; Data Products</div>
+      <div class="chips">
+        <span class="chip">NLP Self-Serve Analytics</span>
+        <span class="chip">Drag &amp; Drop Analytics</span>
+        <span class="chip">Custom Dashboard Development</span>
+        <span class="chip">Impact Analytics</span>
+        <span class="chip">BI Product Development</span>
+      </div>
+    </div>
+    <hr/>
+    <div class="skill-group">
+      <div class="skill-group-title">Governance, Security &amp; Compliance</div>
+      <div class="chips">
+        <span class="chip">Data Governance</span>
+        <span class="chip">Youth Data Protection</span>
+        <span class="chip">SOC 2 Type II</span>
+        <span class="chip">GDPR</span>
+        <span class="chip">Compliance Systems</span>
+      </div>
+    </div>
+  `,
+  contact: `
+    <span class="ptag">// OPEN CHANNEL</span>
+    <h2>Let's Connect</h2>
+    <h3>Open for conversations</h3>
+    <hr/>
+    <p>Curious about what data could do for your organisation? Thinking through a data strategy or AI problem? Want to connect with someone in the space?</p>
+    <p>I'm always open to interesting conversations about data engineering, AI systems, and building teams that ship.</p>
+    <hr/>
+    <a href="mailto:gichiniwaruingi@gmail.com" class="clink">✉ gichiniwaruingi@gmail.com</a>
+    <a href="https://www.linkedin.com/in/patrick-gichini-a15692100/" target="_blank" class="clink">↗ LinkedIn — Patrick Gichini</a>
+    <a href="https://github.com/kanataki-zwei" target="_blank" class="clink">↗ GitHub — kanataki-zwei</a>
+  `
+};
+
+const panel     = document.getElementById('panel');
+const overlay   = document.getElementById('overlay');
+const content   = document.getElementById('panel-content');
+const closeBtn  = document.getElementById('panel-close');
+
+function open(section) {
+  content.innerHTML = sections[section] || '';
+  panel.classList.add('open');
+  overlay.classList.add('show');
+}
+function close() {
+  panel.classList.remove('open');
+  overlay.classList.remove('show');
+}
+
+document.querySelectorAll('.interactive').forEach(el => {
+  el.addEventListener('click', () => open(el.dataset.section));
+});
+closeBtn.addEventListener('click', close);
+overlay.addEventListener('click', close);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+</script>
+</body>
+</html>
