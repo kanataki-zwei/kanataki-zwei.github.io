@@ -2,12 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Patrick Gichini Waruingi | Data & Analytics Engineer</title>
+  <title>Patrick Gichini Waruingi | Senior Data Engineering Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="Portfolio of Patrick Gichini Waruingi – Data & Analytics Engineer specializing in modern data platforms, analytics, and ML solutions."
+    content="Portfolio of Patrick Gichini Waruingi – Senior Data Engineering Manager with 10+ years driving data strategy, leading engineering teams, and shipping data platforms across East Africa and beyond."
   />
+
+  <!-- OpenGraph / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.gichiniwaruingi.com/" />
+  <meta property="og:title" content="Patrick Gichini Waruingi | Senior Data Engineering Manager" />
+  <meta property="og:description" content="Senior Data Engineering Manager with 10+ years driving data strategy, leading engineering teams, and shipping data platforms across East Africa." />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23111827'/%3E%3Ctext y='68' x='50' text-anchor='middle' font-size='52' font-weight='700' font-family='system-ui' fill='%2338bdf8'%3EPG%3C/text%3E%3C/svg%3E" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -27,6 +37,10 @@
       --chip-bg: rgba(15, 23, 42, 0.7);
       --radius-lg: 18px;
       --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.75);
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     * {
@@ -78,7 +92,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 0 0.75rem;
+      padding: 0.75rem 0;
     }
 
     .brand {
@@ -164,11 +178,48 @@
       box-shadow: 0 12px 30px rgba(34, 197, 94, 0.4);
       cursor: pointer;
       transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
+      display: inline-flex;
+      align-items: center;
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
       box-shadow: 0 16px 40px rgba(34, 197, 94, 0.55);
+    }
+
+    /* Hamburger */
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.4rem;
+      z-index: 110;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 999px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
     }
 
     /* Layout sections */
@@ -189,12 +240,13 @@
     .hero {
       display: grid;
       grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
-      gap: 2rem;
-      align-items: center;
+      gap: 1.5rem 2rem;
+      align-items: start;
     }
 
     .hero-title {
-      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      grid-column: 1 / -1;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -368,15 +420,6 @@
       white-space: nowrap;
     }
 
-    .exp-tags {
-      margin-top: 0.4rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
     .exp-body {
       margin-top: 0.5rem;
       font-size: 0.86rem;
@@ -469,6 +512,16 @@
       border: 1px solid rgba(148, 163, 184, 0.4);
       background: var(--chip-bg);
       color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .chip-sm img {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      opacity: 0.75;
     }
 
     .skills-grid {
@@ -533,19 +586,46 @@
       .two-col {
         grid-template-columns: minmax(0, 1fr);
       }
-
-      .hero-card {
-        order: -1;
-      }
-
-      .nav-links {
-        display: none;
-      }
     }
 
     @media (min-width: 768px) {
       .nav-links {
         display: flex;
+      }
+
+      .hamburger {
+        display: none;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-actions .pill-link {
+        display: none;
+      }
+
+      .nav-links.open {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.97);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5rem;
+        font-size: 1.3rem;
+        z-index: 100;
+      }
+
+      .nav-links.open a {
+        color: var(--text);
+      }
+
+      .nav-links.open a::after {
+        display: none;
       }
     }
 
@@ -569,21 +649,18 @@
     <div class="page nav">
       <div class="brand">
         <div class="brand-name">Patrick Gichini Waruingi</div>
-        <div class="brand-role">Data &amp; Analytics Engineer</div>
+        <div class="brand-role">Senior Data Engineering Manager · 12 yrs in tech</div>
       </div>
-      <nav class="nav-links">
+      <nav class="nav-links" id="nav-links">
         <a href="#about">About</a>
         <a href="#experience">Experience</a>
         <a href="#projects">Projects</a>
-        <a href="#volunteering">Volunteering</a>
         <a href="#skills">Skills</a>
+        <a href="#volunteering">Volunteering</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="nav-actions">
-        <a
-          class="pill-link"
-          href="mailto:gichiniwaruingi@gmail.com"
-        >
+        <a class="pill-link" href="mailto:gichiniwaruingi@gmail.com">
           <span class="icon">✉️</span>
           <span>Say hi</span>
         </a>
@@ -595,584 +672,678 @@
         >
           View CV
         </a>
-        <a
-          class="btn-primary"
-          href="Patrick_Waruingi.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Download CV
-        </a>
       </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </div>
   </header>
 
-    <div class="page">
-      <main>
-        <!-- Hero / About -->
-        <section id="about" class="hero">
-          <div>
-            <h1 class="hero-title">Designing modern data platforms</h1>
-            <p class="hero-subtitle">
-              10+ years building data platforms, analytics, and ML solutions across consulting, manufacturing,
-              EdTech, AdTech, FinTech, and social enterprise.
-            </p>
+  <div class="page">
+    <main>
+      <!-- Hero / About -->
+      <section id="about" class="hero">
+        <h1 class="hero-title">Building data engineering teams and the platforms they ship</h1>
 
-            <div class="hero-highlights">
-              <span class="chip">ETL/ELT &amp; Data Warehousing</span>
-              <span class="chip">Cloud Infrastructure</span>
-              <span class="chip">Business Intelligence &amp; Reporting</span>
-              <span class="chip">ML &amp; AI Powered Data Product Services</span>
-              <span class="chip">Data Leadership, Governance, Compliance &amp; Security</span>
+        <div>
+          <p class="hero-subtitle">
+            10 years in data engineering across consulting, EdTech, AdTech, FinTech, and
+            social enterprise — now leading the teams and the strategy.
+          </p>
+
+          <p class="hero-body">
+            I lead data engineering teams and drive the strategy behind platforms organisations
+            depend on. I stay technically close to the work — shaping architecture, reviewing
+            critical decisions, and rolling up my sleeves when the problem demands it — while
+            keeping the strategic focus on what the data function needs to deliver.
+          </p>
+
+          <div class="hero-cta">
+            <a class="btn-primary" href="#contact">Work with me</a>
+            <a
+              class="pill-link"
+              href="https://github.com/kanataki-zwei"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="icon">💻</span>
+              <span>GitHub</span>
+            </a>
+            <a
+              class="pill-link"
+              href="https://www.linkedin.com/in/patrick-gichini-a15692100/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="icon">🔗</span>
+              <span>LinkedIn</span>
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <span>📍 Nairobi, Kenya</span>
+            <span>12 yrs in tech</span>
+            <span>10 yrs in data</span>
+            <span>3 teams led</span>
+            <span>10+ enterprise warehouses shipped</span>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <div class="hero-card-title">Currently</div>
+          <div class="hero-card-main">
+            Sr Data Engineering Manager @ Educate!
+          </div>
+          <p class="hero-card-footer">
+            Leading strategy and execution of data engineering work — building next-generation
+            data systems and data product solutions powered by impact data, AI, and intelligent
+            systems to drive social impact EdTech outcomes across Kenya, Uganda, Tanzania
+            &amp; Rwanda.
+          </p>
+          <div class="hero-card-badges">
+            <span class="badge-soft">Impact Data Systems</span>
+            <span class="badge-soft">AI &amp; Intelligent Systems</span>
+            <span class="badge-soft">Data Product Engineering</span>
+            <span class="badge-soft">Social Impact EdTech</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- Experience -->
+      <section id="experience">
+        <div class="section-header">
+          <h2 class="section-title">Experience</h2>
+          <p class="section-subtitle">Recent roles</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="experience-item">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-role">Senior Data Engineering Manager</div>
+                  <div class="exp-company">Educate! · Nairobi, Kenya</div>
+                </div>
+                <div class="exp-meta">
+                  Aug 2026 – Present<br />
+                  Social enterprise / EdTech
+                </div>
+              </div>
+              <div class="exp-body">
+                <p style="margin-bottom: 0.5rem;">
+                  Leading the data function for a social impact organisation serving young people
+                  across Kenya, Uganda, Tanzania, and Rwanda — from engineering and AI-enabled
+                  data products to governance and youth data protection.
+                </p>
+                <ul>
+                  <li>
+                    Building the data engineering function from the ground up: growing the team,
+                    bringing in engineering talent, and setting the organisation's data
+                    engineering roadmap.
+                  </li>
+                  <li>
+                    Designing and building an AI-focused, org-wide context management pipeline
+                    that curates organisational knowledge for both human and AI use cases.
+                  </li>
+                  <li>
+                    Building data systems, tools, and data products that help teams manage and
+                    curate data better and deliver more value to youth.
+                  </li>
+                  <li>
+                    Upskilling analysts and adjacent teams to use AI and our data products for
+                    more efficient value chains.
+                  </li>
+                  <li>
+                    Setting data management and operating standards, with compliance for the
+                    organisation and its individual products, including solutions that safeguard
+                    youth data.
+                  </li>
+                  <li>
+                    Establishing monitoring and compliance systems to measure security and
+                    compliance levels across the organisation.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="experience-item">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-role">Senior Data Engineer</div>
+                  <div class="exp-company">Educate! · Nairobi, Kenya</div>
+                </div>
+                <div class="exp-meta">
+                  May 2025 – Aug 2026<br />
+                  Social enterprise / EdTech
+                </div>
+              </div>
+              <div class="exp-body">
+                <p style="margin-bottom: 0.5rem;">
+                  Architected the organisation's data ecosystem, supporting programs across
+                  Kenya, Uganda, Tanzania, and Rwanda.
+                </p>
+                <ul>
+                  <li>
+                    Designed and implemented an enterprise data warehouse connecting data from
+                    multiple source systems across four countries, automating reporting cycles
+                    and cutting time-to-insight by more than 50%.
+                  </li>
+                  <li>
+                    Set up analytics workstreams and upskilled the analytics team to build
+                    automated analytical models, speeding up dashboard readiness by 40% and
+                    standardising KPI definitions across teams.
+                  </li>
+                  <li>
+                    Deployed an AI-powered self-serve analytics tool so non-technical
+                    stakeholders can get insights in natural language for key products.
+                  </li>
+                  <li>
+                    Built custom tooling for pipeline setup and quality measurement, reducing
+                    pipeline failures by 25% and improving report reliability.
+                  </li>
+                  <li>
+                    Led organisation-wide data governance and security initiatives, defining
+                    standards, access policies, and best practices for data usage.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top: 1.5rem;">
+          <div class="card">
+            <div class="experience-item">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-role">Data Lead &amp; Sr Data Scientist</div>
+                  <div class="exp-company">Wowzi Technologies Inc · Nairobi, Kenya</div>
+                </div>
+                <div class="exp-meta">
+                  Oct 2022 – May 2025<br />
+                  AdTech / Creator economy
+                </div>
+              </div>
+              <div class="exp-body">
+                <ul>
+                  <li>
+                    Led a team of 3 technical data professionals (Data Engineers and BI
+                    Developer), driving the company's data strategy and delivery roadmap.
+                  </li>
+                  <li>
+                    Acted as interim Data Product Manager for the data and analytics stack,
+                    owning roadmap prioritisation and aligning with Product, Engineering, Sales,
+                    and Customer Success stakeholders.
+                  </li>
+                  <li>
+                    Designed and maintained cloud ELT pipelines processing millions of rows of
+                    data from multiple product, marketing, and finance sources.
+                  </li>
+                  <li>
+                    Optimised query performance on Google BigQuery, reducing processing time and
+                    cloud costs by 30%.
+                  </li>
+                  <li>
+                    Built a machine learning recommendation engine to match clients with
+                    high-performing creators, improving key campaign KPIs by 20%.
+                  </li>
+                  <li>
+                    Developed churn prediction models for creators, enabling proactive outreach
+                    and reducing creator churn by 15%.
+                  </li>
+                  <li>
+                    Built data product services powering in-house product features (including
+                    generative AI components) and an automated analytics platform serving
+                    C-level, internal, and external stakeholders.
+                  </li>
+                  <li>
+                    Led SOC 2 Type II and GDPR compliance implementation for data systems.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="experience-item">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-role">Tech Lead &amp; Sr Data Engineer</div>
+                  <div class="exp-company">Iconia Technologies Ltd · Nairobi, Kenya</div>
+                </div>
+                <div class="exp-meta">
+                  Sept 2017 – Aug 2022<br />
+                  Data consulting
+                </div>
+              </div>
+              <div class="exp-body">
+                <ul>
+                  <li>
+                    Led end-to-end delivery of data projects for multi-industry clients, acting
+                    as both technical lead and project manager from scoping and design through
+                    implementation and handover.
+                  </li>
+                  <li>
+                    Managed a team of data and software engineers, providing architectural
+                    guidance, sprint planning, and code reviews while ensuring projects met
+                    technical, timeline, and budget requirements.
+                  </li>
+                  <li>
+                    Designed and built enterprise data warehouses (cloud and on-premise) for
+                    clients in finance, health, manufacturing, education, and retail.
+                  </li>
+                  <li>
+                    Architected and implemented enterprise BI ecosystems using both proprietary
+                    and open-source tools.
+                  </li>
+                  <li>
+                    Built and automated ETL/ELT pipelines integrating millions of rows from
+                    diverse source systems into central analytical stores.
+                  </li>
+                  <li>
+                    Developed automated alerting systems (email, Microsoft Teams, in-app chat,
+                    WhatsApp) such as stockout alerts that reduced stockouts by 65% and cut
+                    ad-hoc analyst requests by 50%.
+                  </li>
+                  <li>
+                    Deployed demand prediction models to optimise inventory management
+                    (improving forecasting accuracy to ~85%) and customer–product clustering
+                    models that drove a 30% uplift in marketing performance.
+                  </li>
+                </ul>
+              </div>
             </div>
 
-            <p class="hero-body">
-              I architect and ship data ecosystems that turn messy, multi-source data into
-              reliable, self-serve analytics and machine learning products. I’ve led data teams,
-              built modern warehouses, optimised cloud spend, and helped organisations across
-              Kenya, Uganda, Tanzania, Rwanda, and beyond make decisions grounded in data.
-            </p>
+            <div class="experience-item">
+              <div class="exp-header">
+                <div>
+                  <div class="exp-role">Earlier Roles</div>
+                  <div class="exp-company">Learning Lions · Tunapanda Institute</div>
+                </div>
+                <div class="exp-meta">
+                  2015 – 2017
+                </div>
+              </div>
+              <div class="exp-body">
+                <p class="subtle-note">
+                  Sysadmin &amp; ICT Trainer at Learning Lions (Lodwar, Kenya) and Network
+                  Engineer &amp; ICT Trainer at Tunapanda Institute (Nairobi, Kenya). Roles
+                  overlapped as the organisations are sister entities; focused on infrastructure,
+                  training, and early data/reporting work.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="hero-cta">
-              <a class="btn-primary" href="#contact">Work with me</a>
+      <!-- Projects -->
+      <section id="projects">
+        <div class="section-header">
+          <h2 class="section-title">Projects</h2>
+          <p class="section-subtitle">Selected work</p>
+        </div>
+
+        <div class="card">
+          <div class="pill-cards">
+            <article class="pill-card">
+              <div class="pill-title-row">
+                <h3 class="pill-title">
+                  Natural Language Self-Serve Analytics · Educate!
+                </h3>
+                <div class="pill-meta">AI Assistant For Analytics</div>
+              </div>
+              <p class="pill-body">
+                Designed and implemented a natural-language self-serve analytics tool using
+                dbt MCP and Claude, enabling non-technical users to query the data warehouse
+                in plain English and receive instant, contextual insights. Reduced analyst
+                workload on common queries by 50% and gave key decision-makers on-demand
+                access to data, significantly speeding up decision cycles.
+              </p>
+              <p class="pill-tech">
+                <strong>Tech:</strong> dbt MCP, Claude AI, central warehouse
+              </p>
+            </article>
+
+            <article class="pill-card">
+              <div class="pill-title-row">
+                <h3 class="pill-title">Data Infrastructure · Wowzi Technologies</h3>
+                <div class="pill-meta">Modern Data Stack</div>
+              </div>
+              <p class="pill-body">
+                Designed and built a fully serverless modern data stack from scratch, using
+                Airbyte for multi-source ingestion into Google BigQuery, dbt for
+                transformation, and Prefect for orchestration deployed on AWS ECS. Developed a
+                BI layer with Apache Superset to provide self-serve internal analytics for
+                product, operations, and leadership teams.
+              </p>
+              <p class="pill-tech">
+                <strong>Tech:</strong> Airbyte, dbt, Prefect, Apache Superset, Google BigQuery,
+                QuickBooks, PostgreSQL, HubSpot, Google Sheets, 3rd-party social APIs
+              </p>
+            </article>
+
+            <article class="pill-card">
+              <div class="pill-title-row">
+                <h3 class="pill-title">Demand Prediction · Iconia Technologies</h3>
+                <div class="pill-meta">Inventory &amp; Revenue Impact</div>
+              </div>
+              <p class="pill-body">
+                Built a demand prediction solution for a multinational manufacturing client to
+                forecast distributor demand and derive required inventory levels. The system
+                used predicted demand and BOM data to drive a raw-material procurement module
+                for final SKUs, improving procurement and production planning efficiency by
+                85% and unlocking ~$1M in additional MRR previously lost to unserviceable
+                backorders.
+              </p>
+              <p class="pill-tech">
+                <strong>Tech:</strong> Multiple Linear Regression, Microsoft Dynamics NAV
+                (ERP), Power BI, custom alerts on Microsoft Teams
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Skills & Certifications -->
+      <section id="skills">
+        <div class="section-header">
+          <h2 class="section-title">Skills</h2>
+          <p class="section-subtitle">What I work with</p>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="skills-grid">
+              <div>
+                <div class="skills-block-title">Leadership &amp; People Management</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">Team Building &amp; Hiring</span>
+                  <span class="chip-sm">Performance Management</span>
+                  <span class="chip-sm">Technical Mentorship &amp; Upskilling</span>
+                  <span class="chip-sm">Stakeholder Management</span>
+                  <span class="chip-sm">Cross-functional Operations</span>
+                  <span class="chip-sm">Engineering Roadmap Ownership</span>
+                  <span class="chip-sm">Data Strategy</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="skills-block-title">Data Architecture &amp; Engineering</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">Enterprise Data Warehousing</span>
+                  <span class="chip-sm">Data Pipeline Engineering</span>
+                  <span class="chip-sm">Data Systems Design</span>
+                  <span class="chip-sm">Custom Tool Building</span>
+                  <span class="chip-sm">Data Monitoring &amp; Quality</span>
+                  <span class="chip-sm">DevSecOps</span>
+                  <span class="chip-sm">Sensitive Data Management</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="skills-block-title">Analytics &amp; Data Products</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">NLP Self-Serve Analytics</span>
+                  <span class="chip-sm">Drag &amp; Drop Analytics</span>
+                  <span class="chip-sm">Custom Dashboard Development</span>
+                  <span class="chip-sm">Impact Analytics</span>
+                  <span class="chip-sm">Scorecards &amp; KPIs</span>
+                  <span class="chip-sm">BI Product Development</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="skills-block-title">Governance, Security &amp; Compliance</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">Data Governance</span>
+                  <span class="chip-sm">GDPR</span>
+                  <span class="chip-sm">ODPC Certification</span>
+                  <span class="chip-sm">SOC 2 Type II</span>
+                  <span class="chip-sm">Security &amp; Compliance</span>
+                  <span class="chip-sm">Youth Data Protection</span>
+                  <span class="chip-sm">Great Expectations</span>
+                  <span class="chip-sm">dbt tests</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="skills-block-title">AI Engineering</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">LLM Fine-tuning &amp; Custom Training</span>
+                  <span class="chip-sm">Retrieval-Augmented Generation (RAG)</span>
+                  <span class="chip-sm">MCP Development</span>
+                  <span class="chip-sm">AI-Powered Analytics Systems</span>
+                  <span class="chip-sm">AI-Powered Data Products</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="skills-block-title">ML Engineering &amp; MLOps</div>
+                <div class="chips-grid">
+                  <span class="chip-sm">Predictive Modelling</span>
+                  <span class="chip-sm">Classification Systems</span>
+                  <span class="chip-sm">Recommender Systems</span>
+                  <span class="chip-sm">Feature Engineering</span>
+                  <span class="chip-sm">Model Deployment &amp; Monitoring</span>
+                  <span class="chip-sm">MLOps Pipelines</span>
+                </div>
+              </div>
+
+              <div style="grid-column: 1 / -1;">
+                <div class="skills-block-title">Tools &amp; Platforms</div>
+                <div class="chips-grid">
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/googlebigquery/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />BigQuery</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/snowflake/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Snowflake</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/postgresql/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />PostgreSQL</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/dbt/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />dbt</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/apacheairflow/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Airflow</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/prefect/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Prefect</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/airbyte/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Airbyte</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/googlecloud/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />GCP</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/amazonaws/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />AWS</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/python/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Python</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/postgresql/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" style="display:none" />SQL</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/r/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />R</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/gnubash/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Bash</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/flask/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Flask</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/fastapi/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />FastAPI</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/streamlit/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Streamlit</span>
+                  <span class="chip-sm">Shiny</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/powerbi/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Power BI</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/tableau/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Tableau</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/looker/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Looker Studio</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/apachesuperset/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Apache Superset</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/mlflow/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />MLflow</span>
+                  <span class="chip-sm"><img src="https://cdn.simpleicons.org/apachespark/9ca3af" alt="" loading="lazy" onerror="this.style.display='none'" />Spark ML</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header" style="margin-top: 0; margin-bottom: 0.6rem;">
+              <h2 class="section-title" style="font-size: 0.9rem;">Education &amp; Certifications</h2>
+              <p class="section-subtitle">Continuous learning</p>
+            </div>
+
+            <div style="margin-bottom: 0.7rem;">
+              <div class="skills-block-title">Education</div>
+              <p class="cert-item">
+                <strong>Multimedia University of Kenya</strong> – BSc Computer Science
+              </p>
+            </div>
+
+            <div>
+              <div class="skills-block-title">Certifications</div>
+              <p class="cert-item">
+                <strong>Google Project Management Specialization</strong>
+                <span> · Google, Dec 2024</span>
+              </p>
+              <p class="cert-item">
+                <strong>Data Engineering, Big Data, and Machine Learning on GCP</strong>
+                <span> · Google, Jan 2024</span>
+              </p>
+              <p class="cert-item">
+                <strong>Practical Decision-Making Using No-code ML on AWS</strong>
+                <span> · AWS, Feb 2023</span>
+              </p>
+              <p class="cert-item">
+                <strong>WhatsApp Business Platform for Developers</strong>
+                <span> · Meta, Jul 2023</span>
+              </p>
+              <p class="cert-item">
+                <strong>Oracle Certified Associate</strong>
+                <span> · Institute of Advanced Technology, 2017</span>
+              </p>
+            </div>
+
+            <div style="margin-top: 0.9rem;">
+              <div class="skills-block-title">Languages</div>
+              <div class="chips-grid">
+                <span class="chip-sm">Swahili (Native)</span>
+                <span class="chip-sm">English (Native)</span>
+                <span class="chip-sm">German (A2)</span>
+                <span class="chip-sm">Spanish (A1)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Volunteering -->
+      <section id="volunteering">
+        <div class="section-header">
+          <h2 class="section-title">Volunteering</h2>
+          <p class="section-subtitle">Pro bono / social impact</p>
+        </div>
+        <div class="card">
+          <div class="pill-cards">
+            <article class="pill-card">
+              <div class="pill-title-row">
+                <h3 class="pill-title">
+                  Data &amp; Analytics Consultant · Faraja Cancer Support
+                </h3>
+                <div class="pill-meta">June 2024 – Present · Nairobi, Kenya</div>
+              </div>
+              <p class="pill-body">
+                Designed and deployed a Streamlit-based therapy booking application that
+                digitised session scheduling, improved data accuracy by ~90%, and freed up 50+
+                staff hours per week. Built integrated analytics dashboards to track therapy
+                utilisation, patient engagement, and impact metrics, strengthening
+                evidence-based reporting and fundraising efforts.
+              </p>
+              <p class="pill-body">
+                Currently developing an automated financial aid triage and approval system to
+                streamline support workflows for cancer patients and reduce turnaround time
+                for assistance decisions.
+              </p>
+              <p class="pill-tech">
+                <strong>Org:</strong>
+                <a
+                  href="https://farajacancersupport.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Faraja Cancer Support
+                </a>
+                · <strong>Tech:</strong> Streamlit, Google Sheets, analytics dashboards
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact">
+        <div class="section-header">
+          <h2 class="section-title">Contact</h2>
+          <p class="section-subtitle">Let's talk data</p>
+        </div>
+
+        <div class="card contact-grid">
+          <div>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">
+              Curious what data could unlock for your organisation? Thinking about your data
+              strategy, AI-powered systems, or how to build a data team that ships? Or just
+              want to connect with someone who's been in the data trenches for over a decade
+              — reach out. Always happy to have a good conversation.
+            </p>
+          </div>
+
+          <div class="contact-list">
+            <div>
+              📞 <strong>Phone:</strong>
+              <a href="tel:+254706356971">(+254) 706 356 971</a>
+            </div>
+            <div>
+              ✉️ <strong>Email:</strong>
+              <a href="mailto:gichiniwaruingi@gmail.com">gichiniwaruingi@gmail.com</a>
+            </div>
+            <div>
+              🌐 <strong>Website:</strong>
               <a
-                class="pill-link"
-                href="https://github.com/kanataki-zwei"
+                href="https://www.gichiniwaruingi.com/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span class="icon">💻</span>
-                <span>GitHub</span>
+                gichiniwaruingi.com
               </a>
+            </div>
+            <div>
+              💼 <strong>LinkedIn:</strong>
               <a
-                class="pill-link"
                 href="https://www.linkedin.com/in/patrick-gichini-a15692100/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span class="icon">🔗</span>
-                <span>LinkedIn</span>
+                linkedin.com/in/patrick-gichini-a15692100
               </a>
             </div>
-
-            <div class="hero-meta">
-              <span>📍 Nairobi, Kenya</span>
-              <span>10+ years in data</span>
-              <span>Consulting, Product &amp; Social Impact</span>
-            </div>
-          </div>
-
-          <aside class="hero-card">
-            <div class="hero-card-title">Currently</div>
-            <div class="hero-card-main">
-              Sr Data Engineer @ Educate!
-            </div>
-            <p class="hero-card-footer">
-              Architecting a central data ecosystem and natural-language analytics for programs
-              across Kenya, Uganda, Tanzania &amp; Rwanda.
-            </p>
-            <div class="hero-card-badges">
-              <span class="badge-soft">Enterprise Data Warehouse</span>
-              <span class="badge-soft">Automated Analytics Pipelines</span>
-              <span class="badge-soft">AI Powered Self-Serve Analytics</span>
-              <span class="badge-soft">Data Governance &amp; Security</span>
-            </div>
-          </aside>
-        </section>
-
-        <!-- Experience -->
-        <section id="experience">
-          <div class="section-header">
-            <h2 class="section-title">Experience</h2>
-            <p class="section-subtitle">Recent roles</p>
-          </div>
-
-          <div class="two-col">
-            <div class="card">
-              <div class="experience-item">
-                <div class="exp-header">
-                  <div>
-                    <div class="exp-role">Sr Data Engineer</div>
-                    <div class="exp-company">Educate! · Nairobi, Kenya</div>
-                  </div>
-                  <div class="exp-meta">
-                    May 2025 – Present<br />
-                    Social enterprise / EdTech
-                  </div>
-                </div>
-                <div class="exp-body">
-                  <ul>
-                    <li>
-                      Architected and built a central data ecosystem ingesting data from multiple
-                      source systems to support operations, reporting, and decision-making across
-                      programs in Kenya, Uganda, Tanzania, and Rwanda.
-                    </li>
-                    <li>
-                      Designed and implemented an enterprise data warehouse that connects
-                      organisational data end-to-end, automates reporting cycles, and reduced
-                      time-to-insight by 30%.
-                    </li>
-                    <li>
-                      Built automated analytical pipelines that removed manual report creation,
-                      accelerating dashboard readiness by 40% and standardising KPI definitions
-                      across teams.
-                    </li>
-                    <li>
-                      Deployed a natural-language self-serve analytics tool (dbt MCP + Claude),
-                      reducing analyst workload on common queries by 50% and expanding data access
-                      to non-technical stakeholders.
-                    </li>
-                    <li>
-                      Implemented automated data quality checks and monitoring, reducing pipeline
-                      failures by 25% and improving report reliability and accuracy.
-                    </li>
-                    <li>
-                      Leading organisation-wide data governance and security initiatives, defining
-                      standards, access policies, and best practices for data usage.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="experience-item">
-                <div class="exp-header">
-                  <div>
-                    <div class="exp-role">Data Lead &amp; Sr Data Scientist</div>
-                    <div class="exp-company">Wowzi Technologies Inc · Nairobi, Kenya</div>
-                  </div>
-                  <div class="exp-meta">
-                    Oct 2022 – May 2025<br />
-                    AdTech / Creator economy
-                  </div>
-                </div>
-                <div class="exp-body">
-                  <ul>
-                    <li>
-                      Led a team of 3 technical data professionals (Data Engineers and BI
-                      Developer), driving the company’s data strategy and delivery roadmap.
-                    </li>
-                    <li>
-                      Acted as interim Data Product Manager for the data and analytics stack,
-                      owning roadmap prioritisation and aligning with Product, Engineering, Sales,
-                      and Customer Success stakeholders.
-                    </li>
-                    <li>
-                      Designed and maintained cloud ELT pipelines processing millions of rows of
-                      data from multiple product, marketing, and finance sources.
-                    </li>
-                    <li>
-                      Optimised query performance on Google BigQuery, reducing processing time and
-                      cloud costs by 30%.
-                    </li>
-                    <li>
-                      Built a machine learning recommendation engine to match clients with
-                      high-performing creators, improving key campaign KPIs by 20%.
-                    </li>
-                    <li>
-                      Developed churn prediction models for creators, enabling proactive outreach
-                      and reducing creator churn by 15%.
-                    </li>
-                    <li>
-                      Built data product services powering in-house product features (including
-                      generative AI components) and an automated analytics platform serving
-                      C-level, internal, and external stakeholders.
-                    </li>
-                    <li>
-                      Led SOC 2 Type II and GDPR compliance implementation for data systems.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="experience-item">
-                <div class="exp-header">
-                  <div>
-                    <div class="exp-role">Tech Lead &amp; Sr Data Engineer</div>
-                    <div class="exp-company">Iconia Technologies Ltd · Nairobi, Kenya</div>
-                  </div>
-                  <div class="exp-meta">
-                    Sept 2017 – Aug 2022<br />
-                    Data consulting
-                  </div>
-                </div>
-                <div class="exp-body">
-                  <ul>
-                    <li>
-                      Led end-to-end delivery of data projects for multi-industry clients, acting
-                      as both technical lead and project manager from scoping and design through
-                      implementation and handover.
-                    </li>
-                    <li>
-                      Managed a team of data and software engineers, providing architectural
-                      guidance, sprint planning, and code reviews while ensuring projects met
-                      technical, timeline, and budget requirements.
-                    </li>
-                    <li>
-                      Designed and built enterprise data warehouses (cloud and on-premise) for
-                      clients in finance, health, manufacturing, education, and retail.
-                    </li>
-                    <li>
-                      Architected and implemented enterprise BI ecosystems using both proprietary
-                      and open-source tools.
-                    </li>
-                    <li>
-                      Built and automated ETL/ELT pipelines integrating millions of rows from
-                      diverse source systems into central analytical stores.
-                    </li>
-                    <li>
-                      Developed automated alerting systems (email, Microsoft Teams, in-app chat,
-                      WhatsApp) such as stockout alerts that reduced stockouts by 65% and cut
-                      ad-hoc analyst requests by 50%.
-                    </li>
-                    <li>
-                      Deployed demand prediction models to optimise inventory management
-                      (improving forecasting accuracy to ~85%) and customer–product clustering
-                      models that drove a 30% uplift in marketing performance.
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="experience-item">
-                <div class="exp-header">
-                  <div>
-                    <div class="exp-role">Earlier Roles</div>
-                    <div class="exp-company">Learning Lions · Tunapanda Institute</div>
-                  </div>
-                  <div class="exp-meta">
-                    2015 – 2017
-                  </div>
-                </div>
-                <div class="exp-body">
-                  <p class="subtle-note">
-                    Sysadmin &amp; ICT Trainer at Learning Lions (Lodwar, Kenya) and Network
-                    Engineer &amp; ICT Trainer at Tunapanda Institute (Nairobi, Kenya). Roles
-                    overlapped as the organisations are sister entities; focused on infrastructure,
-                    training, and early data/reporting work.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Projects -->
-        <section id="projects">
-          <div class="section-header">
-            <h2 class="section-title">Projects</h2>
-            <p class="section-subtitle">Selected work</p>
-          </div>
-
-          <div class="card">
-            <div class="pill-cards">
-              <article class="pill-card">
-                <div class="pill-title-row">
-                  <h3 class="pill-title">
-                    Natural Language Self-Serve Analytics · Educate!
-                  </h3>
-                  <div class="pill-meta">AI Assistant For Analytics</div>
-                </div>
-                <p class="pill-body">
-                  Designed and implemented a natural-language self-serve analytics tool using
-                  dbt MCP and Claude, enabling non-technical users to query the data warehouse
-                  in plain English and receive instant, contextual insights. Reduced analyst
-                  workload on common queries by 50% and gave key decision-makers on-demand
-                  access to data, significantly speeding up decision cycles.
-                </p>
-                <p class="pill-tech">
-                  <strong>Tech:</strong> dbt MCP, Claude AI, central warehouse
-                </p>
-              </article>
-
-              <article class="pill-card">
-                <div class="pill-title-row">
-                  <h3 class="pill-title">Data Infrastructure · Wowzi Technologies</h3>
-                  <div class="pill-meta">Modern Data Stack</div>
-                </div>
-                <p class="pill-body">
-                  Designed and built a fully serverless modern data stack from scratch, using
-                  Airbyte for multi-source ingestion into Google BigQuery, dbt for
-                  transformation, and Prefect for orchestration deployed on AWS ECS. Developed a
-                  BI layer with Apache Superset to provide self-serve internal analytics for
-                  product, operations, and leadership teams.
-                </p>
-                <p class="pill-tech">
-                  <strong>Tech:</strong> Airbyte, dbt, Prefect, Apache Superset, Google BigQuery,
-                  QuickBooks, PostgreSQL, HubSpot, Google Sheets, 3rd-party social APIs
-                </p>
-              </article>
-
-              <article class="pill-card">
-                <div class="pill-title-row">
-                  <h3 class="pill-title">Demand Prediction · Iconia Technologies</h3>
-                  <div class="pill-meta">Inventory &amp; Revenue Impact</div>
-                </div>
-                <p class="pill-body">
-                  Built a demand prediction solution for a multinational manufacturing client to
-                  forecast distributor demand and derive required inventory levels. The system
-                  used predicted demand and BOM data to drive a raw-material procurement module
-                  for final SKUs, improving procurement and production planning efficiency by
-                  85% and unlocking ~$1M in additional MRR previously lost to unserviceable
-                  backorders.
-                </p>
-                <p class="pill-tech">
-                  <strong>Tech:</strong> Multiple Linear Regression, Microsoft Dynamics NAV
-                  (ERP), Power BI, custom alerts on Microsoft Teams
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- Volunteering -->
-        <section id="volunteering">
-          <div class="section-header">
-            <h2 class="section-title">Volunteering</h2>
-            <p class="section-subtitle">Pro bono / social impact</p>
-          </div>
-          <div class="card">
-            <div class="pill-cards">
-              <article class="pill-card">
-                <div class="pill-title-row">
-                  <h3 class="pill-title">
-                    Data &amp; Analytics Consultant · Faraja Cancer Support
-                  </h3>
-                  <div class="pill-meta">June 2024 – Present · Nairobi, Kenya</div>
-                </div>
-                <p class="pill-body">
-                  Designed and deployed a Streamlit-based therapy booking application that
-                  digitised session scheduling, improved data accuracy by ~90%, and freed up 50+
-                  staff hours per week. Built integrated analytics dashboards to track therapy
-                  utilisation, patient engagement, and impact metrics, strengthening
-                  evidence-based reporting and fundraising efforts.
-                </p>
-                <p class="pill-body">
-                  Currently developing an automated financial aid triage and approval system to
-                  streamline support workflows for cancer patients and reduce turnaround time
-                  for assistance decisions.
-                </p>
-                <p class="pill-tech">
-                  <strong>Org:</strong>
-                  <a
-                    href="https://farajacancersupport.org/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Faraja Cancer Support
-                  </a>
-                  · <strong>Tech:</strong> Streamlit, Google Sheets, analytics dashboards
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- Skills & Certifications -->
-        <section id="skills">
-          <div class="section-header">
-            <h2 class="section-title">Skills</h2>
-            <p class="section-subtitle">What I work with</p>
-          </div>
-
-          <div class="two-col">
-            <div class="card">
-              <div class="skills-grid">
-                <div>
-                  <div class="skills-block-title">Languages &amp; Scripting</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">Python</span>
-                    <span class="chip-sm">SQL</span>
-                    <span class="chip-sm">R</span>
-                    <span class="chip-sm">Bash</span>
-                    <span class="chip-sm">Flask</span>
-                    <span class="chip-sm">FastAPI</span>
-                    <span class="chip-sm">Streamlit</span>
-                    <span class="chip-sm">Shiny</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="skills-block-title">Data Pipelines &amp; Warehousing</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">Airflow</span>
-                    <span class="chip-sm">Prefect</span>
-                    <span class="chip-sm">dbt</span>
-                    <span class="chip-sm">Airbyte</span>
-                    <span class="chip-sm">Google BigQuery</span>
-                    <span class="chip-sm">PostgreSQL</span>
-                    <span class="chip-sm">Snowflake</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="skills-block-title">Cloud &amp; Infrastructure</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">AWS</span>
-                    <span class="chip-sm">GCP</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="skills-block-title">Business Intelligence</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">Self-serve analytics</span>
-                    <span class="chip-sm">Scorecards &amp; KPIs</span>
-                    <span class="chip-sm">Impact analytics</span>
-                    <span class="chip-sm">Looker Studio</span>
-                    <span class="chip-sm">Power BI</span>
-                    <span class="chip-sm">Tableau</span>
-                    <span class="chip-sm">Apache Superset</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="skills-block-title">Data Governance</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">Compliance &amp; security</span>
-                    <span class="chip-sm">Data quality</span>
-                    <span class="chip-sm">GDPR</span>
-                    <span class="chip-sm">ODPC Certification</span>
-                    <span class="chip-sm">Great Expectations</span>
-                    <span class="chip-sm">dbt tests</span>
-                    <span class="chip-sm">SOC 2 Type II</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="skills-block-title">Machine Learning &amp; MLOps</div>
-                  <div class="chips-grid">
-                    <span class="chip-sm">ML workflows &amp; automation</span>
-                    <span class="chip-sm">MLflow</span>
-                    <span class="chip-sm">Spark ML</span>
-                    <span class="chip-sm">Recommender systems</span>
-                    <span class="chip-sm">Churn prediction</span>
-                    <span class="chip-sm">Forecasting</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="section-header" style="margin-top: 0; margin-bottom: 0.6rem;">
-                <h2 class="section-title" style="font-size: 0.9rem;">Education &amp; Certifications</h2>
-                <p class="section-subtitle">Continuous learning</p>
-              </div>
-
-              <div style="margin-bottom: 0.7rem;">
-                <div class="skills-block-title">Education</div>
-                <p class="cert-item">
-                  <strong>Multimedia University of Kenya</strong> – BSc Computer Science (studies paused)
-                </p>
-              </div>
-
-              <div>
-                <div class="skills-block-title">Certifications</div>
-                <p class="cert-item">
-                  <strong>Google Project Management Specialization</strong>
-                  <span> · Google, Dec 2024</span>
-                </p>
-                <p class="cert-item">
-                  <strong>Data Engineering, Big Data, and Machine Learning on GCP</strong>
-                  <span> · Google, Jan 2024</span>
-                </p>
-                <p class="cert-item">
-                  <strong>Practical Decision-Making Using No-code ML on AWS</strong>
-                  <span> · AWS, Feb 2023</span>
-                </p>
-                <p class="cert-item">
-                  <strong>WhatsApp Business Platform for Developers</strong>
-                  <span> · Meta, Jul 2023</span>
-                </p>
-                <p class="cert-item">
-                  <strong>Oracle Certified Associate</strong>
-                  <span> · Institute of Advanced Technology, 2017</span>
-                </p>
-              </div>
-
-              <div style="margin-top: 0.9rem;">
-                <div class="skills-block-title">Languages</div>
-                <div class="chips-grid">
-                  <span class="chip-sm">Swahili (Native)</span>
-                  <span class="chip-sm">English (Native)</span>
-                  <span class="chip-sm">German (A2)</span>
-                  <span class="chip-sm">Spanish (A1)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Contact -->
-        <section id="contact">
-          <div class="section-header">
-            <h2 class="section-title">Contact</h2>
-            <p class="section-subtitle">Let’s talk data</p>
-          </div>
-
-          <div class="card contact-grid">
             <div>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">
-                Interested in modernising your data stack, building a warehouse, or integrating
-                ML into your product? I’m open to collaborations, consulting, and senior data
-                engineering roles (remote or Nairobi-based).
-              </p>
-            </div>
-
-            <div class="contact-list">
-              <div>
-                📞 <strong>Phone:</strong>
-                <a href="tel:+254706356971">(+254) 706 356 971</a>
-              </div>
-              <div>
-                ✉️ <strong>Email:</strong>
-                <a href="mailto:gichiniwaruingi@gmail.com">gichiniwaruingi@gmail.com</a>
-              </div>
-              <div>
-                🌐 <strong>Website:</strong>
-                <a
-                  href="https://www.gichiniwaruingi.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  gichiniwaruingi.com
-                </a>
-              </div>
-              <div>
-                💼 <strong>LinkedIn:</strong>
-                <a
-                  href="https://www.linkedin.com/in/patrick-gichini-a15692100/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  linkedin.com/in/patrick-gichini-a15692100
-                </a>
-              </div>
-              <div>
-                💻 <strong>GitHub:</strong>
-                <a
-                  href="https://github.com/kanataki-zwei"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  github.com/kanataki-zwei
-                </a>
-              </div>
+              💻 <strong>GitHub:</strong>
+              <a
+                href="https://github.com/kanataki-zwei"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/kanataki-zwei
+              </a>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
+    </main>
 
-      <footer>
-        <span>© <span id="year"></span> Patrick Gichini Waruingi</span>
-        <span>Built with static HTML &amp; CSS</span>
-      </footer>
-    </div>
+    <footer>
+      <span>© <span id="year"></span> Patrick Gichini Waruingi</span>
+      <span>Built with static HTML &amp; CSS</span>
+    </footer>
+  </div>
 
-    <script>
-      // Set current year in footer
-      document.getElementById("year").textContent = new Date().getFullYear();
-    </script>
-  </body>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("nav-links");
+
+    hamburger.addEventListener("click", () => {
+      hamburger.classList.toggle("open");
+      navLinks.classList.toggle("open");
+      document.body.style.overflow = navLinks.classList.contains("open") ? "hidden" : "";
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        hamburger.classList.remove("open");
+        navLinks.classList.remove("open");
+        document.body.style.overflow = "";
+      });
+    });
+  </script>
+</body>
 </html>
